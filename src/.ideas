@@ -1,0 +1,7 @@
+the command line arguments are either files or directories
+====> two lists:   files list and directories list.
+the files list is sorted and displayed seperately
+
+
+for every entry int the list of entries :
+    + 
