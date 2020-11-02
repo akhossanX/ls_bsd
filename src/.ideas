@@ -5,3 +5,14 @@ the files list is sorted and displayed seperately
 
 for every entry int the list of entries :
     + 
+
+
+
+==> long listing format:
+    + If the modification time of the file is more than 6 months in the past or future, 
+    then the year of the last modification is displayed in place of the hour and minute fields.
+    + If the owner or group names are not a known user or group name, or the -n option is given, 
+    the numeric ID's are displayed.
+    + If the file is a character special or block special file, 
+    the major and minor device numbers for the file are displayed in the size field.
+    + If the file is a symbolic link, the pathname of the linked-to file is preceded by ``->''.

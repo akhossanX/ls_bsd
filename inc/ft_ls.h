@@ -36,15 +36,15 @@
 
 # define OPT_CAPA	(1 << 6)	/* Do not list implied . and .. */
 # define OPT_G		(1 << 7)	/* Like -l but do not list owner */
-# define OPT_CAPG	(1 << 8)	/* with -l do not print group names */
+# define OPT_CAPG	(1 << 8)	/* Enable Colorized output */
 # define OPT_D		(1 << 9)	/* List directories themselves, not their content */
-# define OPT_U		(1 << 10)	/* Sort by access time. with -lt sort and show access time,
-									with -l show access time. 
-								*/
+# define OPT_U		(1 << 10)	/* Sort by access time. with -lt sort and show access time, */
+								/*	with -l show access time. */
+
 # define OPT_CAPU	(1 << 11)	/* Do not sort, list in directory order, Equivalent to --sort=none */ 
-# define OPT_C		(1 << 12)	/* Sort by ctime. with -lt sort and show ctime, with -l show ctime
-									otherwise sort by ctime.
-								*/
+# define OPT_C		(1 << 12)	/* Sort by ctime. with -lt sort and show ctime, with -l show ctime */
+								/*	otherwise sort by ctime. */
+
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
 
