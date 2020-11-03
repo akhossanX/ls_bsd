@@ -16,3 +16,10 @@ for every entry int the list of entries :
     + If the file is a character special or block special file, 
     the major and minor device numbers for the file are displayed in the size field.
     + If the file is a symbolic link, the pathname of the linked-to file is preceded by ``->''.
+
+
+
+
+
+//TODO:
+    function reads the content of a directory and returns a list containing all the entries inside it.

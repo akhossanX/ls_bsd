@@ -18,6 +18,8 @@ void	filter_flags(t_ls *ls, int flag)
 		ls->options & OPT_L ? ls->options ^= OPT_L : 0;
 		ls->options & OPT_1 ? ls->options ^= OPT_1 : 0;
 	}
+	flag == OPT_C && (ls->options & OPT_U) ? ls->options ^= OPT_U : 0;
+	flag == OPT_U && (ls->options & OPT_C) ? ls->options ^= OPT_C : 0;
 }
 
 static void	ft_ls_validate_flags(t_ls *ls, char *flags)

@@ -5,8 +5,7 @@ void    ls_files(t_ls *ls)
 {
     if (ls->files)
     {
-        if (!(ls->options & OPT_CAPU))
-            ls->files = ls_sort(ls, ls->files);
+        // ls->files = ls_sort(ls, ls->files);
         ls_display(ls, ls->files);
     }
 }
@@ -15,8 +14,7 @@ void    ls_dirs(t_ls *ls)
 {
     t_path  *ptr;
 
-    if (!(ls->options & OPT_CAPU))
-        ls->dirs = ls_sort(ls, ls->dirs);
+    // ls->dirs = ls_sort(ls, ls->dirs);
     if (ls->options & OPT_D)
         ls_display(ls, ls->dirs);
     else
@@ -30,6 +28,21 @@ void    ls_dirs(t_ls *ls)
     }
 }
 
+char    *make_full_path(const char *parent, const char *entry)
+{
+    char    *fullpath;
+    char    *tmp;
+
+    errno = 0;
+    if (ft_strlen(parent) == 0)
+        return (ft_strdup(entry));
+    if (!(tmp = ft_strjoin(parent, "/")))
+        return (NULL);
+    fullpath = ft_strjoin(tmp, entry);
+    ft_strdel(&tmp);
+    return (fullpath);
+}
+
 void    ls_dir(t_ls *ls, t_path *dir)
 {
     DIR *dp;
@@ -38,31 +51,37 @@ void    ls_dir(t_ls *ls, t_path *dir)
     t_path  *lst;
 
     entry = make_full_path(dir->parent, dir->name);
+    if (errno != 0)
+        ft_ls_terminate(ls, errno);
     errno = 0;
-    if (!(dp = opendir(entry)))
+    if ((dp = opendir(entry)) == NULL)
     {
         if (errno != ENOTDIR) // the error is not related to entry type (file ...)
-            ft_dprintf(STDERR, "%s: %s: %s\n", ls->prog, dir->name, strerror(errno));
+        {
+            ft_printf("{red}");
+            ft_dprintf(STDERR, "%s: %s: %s\n{eoc}", ls->prog, dir->name, strerror(errno));
+        }
         ls->errcode = 1;
+        ft_strdel(&entry);
         return ;
     }
-    lst = NULL;
-    while (de = readdir(dp))
-    {
-        ft_ls_path_add(&lst, ft_ls_path_new(ls, de->d_name));
-    }
     if (ls->dir_count > 1)
-        ft_printf("%s:\n", entry);
+        ft_printf("\n%s:\n", entry);
+    lst = NULL;
+    while ((de = readdir(dp)))
+    {
+        ft_ls_path_add(&lst, ft_ls_path_new(ls, entry, de->d_name));
+    }
     ft_strdel(&entry);
-    if (!(ls->options & OPT_CAPU))
-        lst = ls_sort(ls, lst);
+    // lst = ls_sort(ls, lst);
     ls_display(ls, lst);
     t_path  *tmp;
     if (ls->options & OPT_CAPR)
     {
         while (lst)
         {
-            ls_dir(ls, ls);
+            if (!ft_strequ(lst->name, ".") && !ft_strequ(lst->name, ".."))
+                ls_dir(ls, lst);
             tmp = lst;
             lst = lst->next;
             free(tmp);

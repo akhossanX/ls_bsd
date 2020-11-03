@@ -13,7 +13,7 @@ static void	ls_init(t_ls **ls, char **av)
 	(*ls)->errcode = 0;
 	(*ls)->operands = 0;
 }
-
+/*
 static void	print_all(t_ls *ls)
 {
 	ft_printf("{red}DIRS\n");
@@ -21,7 +21,7 @@ static void	print_all(t_ls *ls)
 	ft_printf("{blue}FILES{eoc}\n");
 	print_paths(ls->files);
 }
-
+*/
 int		main(int ac, char **av)
 {
 	t_ls	*ls;
@@ -30,9 +30,10 @@ int		main(int ac, char **av)
 	ls = NULL;
 	ls_init(&ls, av);
 	parse_cmd_line(ls, av + 1);
-	print_all(ls);
+	// print_all(ls);
 	ls_files(ls);
-	ft_printf("dirs number: %d\n", ls->dir_count);
+	ls_dirs(ls);
+	ft_printf("\n\n\ndirs number: %d\n", ls->dir_count);
 	ft_ls_terminate(ls, 0);
 	return (0);
 }

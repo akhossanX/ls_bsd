@@ -87,5 +87,11 @@ void	parse_cmd_line(t_ls *ls, char **av);
 void	print_paths(t_path *lst);
 void	ft_ls_terminate(t_ls *ls, int err);
 void	ft_ls_get_path(t_ls *ls, char *arg);
+t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *name);
+void	ft_ls_path_add(t_path **lst, t_path *node);
+void    ls_dir(t_ls *ls, t_path *dir);
+void    ls_dirs(t_ls *ls);
+void	ls_display(t_ls *ls, t_path *lst);
+void	ls_files(t_ls *ls);
 
 #endif
