@@ -28,20 +28,6 @@ void    ls_dirs(t_ls *ls)
     }
 }
 
-char    *make_full_path(const char *parent, const char *entry)
-{
-    char    *fullpath;
-    char    *tmp;
-
-    errno = 0;
-    if (ft_strlen(parent) == 0)
-        return (ft_strdup(entry));
-    if (!(tmp = ft_strjoin(parent, "/")))
-        return (NULL);
-    fullpath = ft_strjoin(tmp, entry);
-    ft_strdel(&tmp);
-    return (fullpath);
-}
 
 void    ls_dir(t_ls *ls, t_path *dir)
 {
@@ -58,8 +44,7 @@ void    ls_dir(t_ls *ls, t_path *dir)
     {
         if (errno != ENOTDIR) // the error is not related to entry type (file ...)
         {
-            ft_printf("{red}");
-            ft_dprintf(STDERR, "%s: %s: %s\n{eoc}", ls->prog, dir->name, strerror(errno));
+            ft_dprintf(STDERR, "%s: %s: %s\n", ls->prog, dir->name, strerror(errno));
         }
         ls->errcode = 1;
         ft_strdel(&entry);
