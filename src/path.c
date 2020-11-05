@@ -5,10 +5,12 @@ t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *path)
 {
 	t_path	*node;
 
+	errno = 0;
 	if (!(node = (t_path *)ft_memalloc(sizeof(t_path))))
-		ft_ls_terminate(ls, errno);//should free everything
-	//if (!(node->name = ft_strdup(path)))
-		//ft_ls_terminate(ls, errno);
+	{
+		ls->errcode = errno;
+		return (NULL);
+	}
 	ft_strncpy(node->name, path, MAX_PATH_LEN);
 	if (parent)
 		ft_strncpy(node->parent, parent, MAX_PATH_LEN);
@@ -44,11 +46,7 @@ void	ft_ls_get_path(t_ls *ls, char *arg)
 		if (errno == ENOTDIR)
 			target = &ls->files;
 		else
-		{
-			ls->errcode < 2 ? ls->errcode = 2 : 0;
-			ft_dprintf(STDERR, "%s: %s: %s\n", ls->prog, arg, strerror(errno));
 			return ;
-		}
 	}
 	else
 		ls->dir_count++;	

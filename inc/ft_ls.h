@@ -64,9 +64,6 @@ typedef struct		s_path
 {
 	char			name[MAX_PATH_LEN + 1];
 	char			parent[MAX_PATH_LEN + 1];
-	//DIR			*dp;
-	//struct dirent	*dir;
-	//struct stat	st;
 	struct s_path	*next;
 }					t_path;
 
@@ -78,6 +75,8 @@ typedef struct		s_ls
 	int				dir_count;//command line directories counter
 	int				errcode;
 	int				operands;
+	struct dirent	*de;
+	DIR				*dp;
 	const char		*prog;
 	t_path			*dirs;
 	t_path			*files;
