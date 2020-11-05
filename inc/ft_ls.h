@@ -41,7 +41,7 @@
 # define OPT_U		(1 << 10)	/* Sort by access time. with -lt sort and show access time, */
 								/*	with -l show access time. */
 
-# define OPT_CAPU	(1 << 11)	/* Do not sort, list in directory order, Equivalent to --sort=none */ 
+# define OPT_F		(1 << 11)	/* Do not sort, list in directory order, and activate -a options */
 # define OPT_C		(1 << 12)	/* Sort by ctime. with -lt sort and show ctime, with -l show ctime */
 								/*	otherwise sort by ctime. */
 
@@ -62,8 +62,8 @@ extern const t_option	g_options[];
 
 typedef struct		s_path
 {
-	char			name[MAX_PATH_LEN + 1];
-	char			parent[MAX_PATH_LEN + 1];
+	char			*name;
+	char			*parent;
 	struct s_path	*next;
 }					t_path;
 
@@ -75,22 +75,17 @@ typedef struct		s_ls
 	int				dir_count;//command line directories counter
 	int				errcode;
 	int				operands;
+	int				optend;
 	struct dirent	*de;
 	DIR				*dp;
 	const char		*prog;
+	t_path			*all;//all command line operands (non options)
 	t_path			*dirs;
 	t_path			*files;
 }					t_ls;
 
-void	parse_cmd_line(t_ls *ls, char **av);
-void	print_paths(t_path *lst);
-void	ft_ls_terminate(t_ls *ls, int err);
-void	ft_ls_get_path(t_ls *ls, char *arg);
-t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *name);
-void	ft_ls_path_add(t_path **lst, t_path *node);
-void    ls_dir(t_ls *ls, t_path *dir);
-void    ls_dirs(t_ls *ls);
-void	ls_display(t_ls *ls, t_path *lst);
-void	ls_files(t_ls *ls);
+void	parse_cli_arguments(t_ls *ls, char **av);
+void	get_cli_options(t_ls *ls, char **av);
+void	ls_usage(t_ls *ls, const char option);
 
 #endif

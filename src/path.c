@@ -49,11 +49,17 @@ void	ft_ls_get_path(t_ls *ls, char *arg)
 			return ;
 	}
 	else
-		ls->dir_count++;	
+		ls->dir_count++;
 	dp ? closedir(dp) : 0;
 	if (!(path = ft_ls_path_new(ls, NULL, arg)))
 		ft_ls_terminate(ls, errno);//should free everything
 	ft_ls_path_add(target, path);
+}
+
+int		ft_ls_get_path(t_ls *ls, char *arg)
+{
+	errno = 0;
+	ls->dp = opendir(arg);	
 }
 
 

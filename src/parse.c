@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/05 12:47:21 by akhossan          #+#    #+#             */
+/*   Updated: 2020/11/05 14:21:55 by akhossan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_ls.h"
 
-void	filter_flags(t_ls *ls, int flag)
+void	filter_options(t_ls *ls, int flag)
 {
 	ls->options |= flag;
 	if (flag == OPT_L)
@@ -20,58 +32,74 @@ void	filter_flags(t_ls *ls, int flag)
 	}
 	flag == OPT_C && (ls->options & OPT_U) ? ls->options ^= OPT_U : 0;
 	flag == OPT_U && (ls->options & OPT_C) ? ls->options ^= OPT_C : 0;
+	flag == OPT_CAPR && (ls->options & OPT_D) ? ls->options ^= OPT_CAPR : 0;
 }
 
-static void	ft_ls_validate_flags(t_ls *ls, char *flags)
+void	parse_cli_arguments(t_ls *ls, char **argv)
 {
 	int		i;
-	int		valid;
 
-	while (*(++flags))
-	{
-		i = 0;
-		valid = 0;
-		while (i < OPTIONS)
-		{
-			if (g_options[i].option == *flags)
-			{
-				filter_flags(ls, g_options[i].code);
-				valid = 1;
-				break ;
-			}
-			i++;
-		}
-		if (!valid)
-		{
-			ft_dprintf(STDERR, "%s: invalid option -- '%c'\n", \
-				ls->prog, *flags);
-			ft_ls_terminate(ls, ERR_LS_INVOPT);
-		}
-	}
-}
-
-void	parse_cmd_line(t_ls *ls, char **av)
-{
-	int		i;
-	int		opt_end;
-
-	opt_end = INT_MAX;
+	get_cli_options(ls, argv);
 	i = 0;
-	while (av[i])
+	while (argv[i])
 	{
-		if (opt_end == INT_MAX && ft_strcmp(av[i], "--") == 0)
-			opt_end = i;
-		//else if (i < opt_end && ft_strncmp(av[i], "--", 2) == 0)
-			//lookup_long_opt_table(cat, s[cat->i]);
-		else if (i < opt_end && av[i][0] == '-' && av[i][1])
-			ft_ls_validate_flags(ls, av[i]);
-		else
+		if (*argv[i] != '-' || i > ls->optend)
 		{
-			ls->operands++;
-			ft_ls_get_path(ls, av[i]);
+			if (ls->options & OPT_D)
+			{
+				;//save all entries in "all" list	
+			}
+			else
+				;//save l9lawi 3la hasab wach file wla dir
 		}
-		i += 1;
+		i++;
 	}
-	if (ls->operands == 0)
-		ft_ls_get_path(ls, ".");
+}
+
+int		is_valid_option(const char opt)
+{
+	int		i;
+
+	i = 0;
+	while (i < OPTIONS)
+	{
+		if (g_options[i].option == opt)
+			return (g_options[i].code);
+		i++;
+	}
+	return (0);
+}
+
+void		get_cli_options(t_ls *ls, char **argv)
+{
+	int		i;
+	int		j;
+	int		optcode;
+
+	i = 0;
+	while (argv[i] && !ft_strequ(argv[i], "--"))
+	{
+		if (*argv[i] == '-')
+		{
+			j = 1;
+			while (argv[i][j])
+			{
+				if ((optcode = is_valid_option(argv[i][j])))
+					filter_options(ls, optcode);
+				else
+					ls_usage(ls, argv[i][j]);
+				j++;
+			}
+		}
+		i++;
+	}
+	if (argv[i])
+		ls->optend = i;
+}
+
+void	ls_usage(t_ls *ls, const char option)
+{
+	ft_dprintf(STDERR, "%s: %s %c\n", ls->prog, "illegal option --", option);
+	free(ls);
+	exit(1);	
 }

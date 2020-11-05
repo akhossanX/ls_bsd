@@ -25,5 +25,6 @@ void	ft_ls_terminate(t_ls *ls, int err)
 		free(ls);
 		exit(ls->errcode);	// Need to exit with ls->errcode error
 	}
-	exit(err);
+	if (err)
+		exit(err);
 }

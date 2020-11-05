@@ -17,13 +17,14 @@ SRCDIR	=	src/
 
 OBJDIR	=	obj/
 
-SRCS =	files.c \
+SRCS = \
 		ft_ls.c \
-		ls_display.c \
-		opt_map.c \
 		parse.c \
-		path.c \
+		opt_map.c \
+		#ls_display.c \
 		terminate.c
+		#files.c \
+		path.c \
 
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))

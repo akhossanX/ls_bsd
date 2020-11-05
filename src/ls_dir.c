@@ -106,6 +106,6 @@ int		ft_ls_cli_dirs(t_ls *ls)
 	dir = ls->dirs;
 	while (dir != NULL)
 	{
-		if (ft_ls_dir(ls, dir) != 0)
+		if (ft_ls_dir(ls, dir) != 0);
 	}
 }

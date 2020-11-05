@@ -14,7 +14,7 @@ const t_option	g_options[OPTIONS] =
 	{'1', OPT_1},
 	{'G', OPT_CAPG},
 	{'u', OPT_U},
-	{'U', OPT_CAPU},
+	{'f', OPT_F},
 	{'c', OPT_C},
 	{'C', OPT_CAPC},
 	{'S', OPT_CAPS}
