@@ -19,15 +19,36 @@ static void	ls_init(t_ls **ls, char **av)
 	(*ls)->errcode = 0;
 	(*ls)->operands = 0;
 }
+
 /*
+**	For debugging
+*/
+
+void	print_paths(t_path *lst)
+{
+	t_path	*p;
+
+	p = lst;
+	while (p)
+	{
+		ft_printf("%s\n", p->name);
+		p = p->next;
+	}
+}
+
 static void	print_all(t_ls *ls)
 {
-	ft_printf("{red}DIRS\n");
+	if (ls->options & OPT_D)
+	{
+		print_paths(ls->all);
+		return ;
+	}	
+	ft_printf("{red}DIRS:\n");
 	print_paths(ls->dirs);
-	ft_printf("{blue}FILES{eoc}\n");
+	ft_printf("{blue}FILES:{eoc}\n");
 	print_paths(ls->files);
 }
-*/
+
 int		main(int ac, char **av)
 {
 	t_ls	*ls;
@@ -37,7 +58,9 @@ int		main(int ac, char **av)
 	ls_init(&ls, av);
 	parse_cli_arguments(ls, av + 1);
 	ft_printf("flags: %015b\n", ls->options);
-	// print_all(ls);
+
+	print_all(ls);
+	ls_clean_all(ls);
 	//ls_files(ls);
 	//ls_dirs(ls);
 	//ft_printf("\n\n\ndirs number: %d\n", ls->dir_count);

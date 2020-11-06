@@ -12,7 +12,7 @@
 
 #include "ft_ls.h"
 
-t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *name)
+t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 {
 	t_path	*node;
 
@@ -22,7 +22,7 @@ t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *name)
 		ls->errcode = errno;
 		return (NULL);
 	}
-	if (!(node->name = ft_strdup(path)))
+	if (!(node->name = ft_strdup(name)))
 	{
 		ls->errcode = errno;
 		free(node);
@@ -56,20 +56,4 @@ void	ls_save_path(t_ls *ls, t_path **target_list, const char *parent,
 	while (ptr->next)
 		ptr = ptr->next;
 	ptr->next = new;
-}
-
-/*
-**	For debugging
-*/
-
-void	print_paths(t_path *lst)
-{
-	t_path	*p;
-
-	p = lst;
-	while (p)
-	{
-		ft_printf("%s\n", p->name);
-		p = p->next;
-	}
 }

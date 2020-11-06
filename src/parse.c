@@ -35,6 +35,21 @@ void	filter_options(t_ls *ls, int flag)
 	flag == OPT_CAPR && (ls->options & OPT_D) ? ls->options ^= OPT_CAPR : 0;
 }
 
+int		ls_is_dir(t_ls *ls, const char *name)
+{
+	DIR	*dirp;
+
+	errno = 0;
+	dirp = opendir(name);
+	if (dirp == NULL)
+	{
+		ls->errcode = errno;
+		return (0);
+	}
+	closedir(dirp);
+	return (1);
+}
+
 void	parse_cli_arguments(t_ls *ls, char **argv)
 {
 	int		i;
@@ -47,7 +62,7 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 		{
 			errno = 0;
 			if (ls->options & OPT_D)
-				ls_save_path(ls, ls->all, NULL, argv[i]);
+				ls_save_path(ls, &ls->all, NULL, argv[i]);
 			else
 			{
 				if (ls_is_dir(ls, argv[i]))
@@ -68,6 +83,8 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 		}
 		i++;
 	}
+	if (!ls->all && !ls->dirs && !ls->files)
+		ls_save_path(ls, &ls->dirs, NULL, ".");
 }
 
 int		is_valid_option(const char opt)
@@ -75,7 +92,7 @@ int		is_valid_option(const char opt)
 	int		i;
 
 	i = 0;
-	while (i < OPTIONS)
+	while (i < NOPTIONS)
 	{
 		if (g_options[i].option == opt)
 			return (g_options[i].code);

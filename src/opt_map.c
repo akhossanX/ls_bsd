@@ -1,7 +1,7 @@
 
 #include "ft_ls.h"
 
-const t_option	g_options[OPTIONS] = 
+const t_option	g_options[NOPTIONS] = 
 {
 	{'l', OPT_L},
 	{'a', OPT_A},

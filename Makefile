@@ -21,10 +21,11 @@ SRCS = \
 		ft_ls.c \
 		parse.c \
 		opt_map.c \
-		#ls_display.c \
-		terminate.c
-		#files.c \
 		path.c \
+		ls_error.c
+		#ls_display.c \
+		terminate.c \
+		files.c \
 
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))

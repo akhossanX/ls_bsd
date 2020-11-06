@@ -88,5 +88,10 @@ typedef struct		s_ls
 void	parse_cli_arguments(t_ls *ls, char **av);
 void	get_cli_options(t_ls *ls, char **av);
 void	ls_usage(t_ls *ls, const char option);
+void	
+ls_save_path(t_ls *ls, t_path **lst, const char *parent, const char *name);
+void	ls_handle_error(t_ls *ls, const char *arg, int error_level);
+int		get_error_level(int error);
+void	ls_clean_all(t_ls *ls);
 
 #endif
