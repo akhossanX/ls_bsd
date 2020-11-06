@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 12:47:21 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/05 14:21:55 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/06 14:29:11 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,26 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 	{
 		if (*argv[i] != '-' || i > ls->optend)
 		{
+			errno = 0;
 			if (ls->options & OPT_D)
-			{
-				;//save all entries in "all" list	
-			}
+				ls_save_path(ls, ls->all, NULL, argv[i]);
 			else
-				;//save l9lawi 3la hasab wach file wla dir
+			{
+				if (ls_is_dir(ls, argv[i]))
+					ls_save_path(ls, &ls->dirs, NULL, argv[i]);
+				else
+				{
+					if (get_error_level(ls->errcode) == LS_MINOR_ERROR)
+					{
+						if (ls->errcode == ENOTDIR)
+							ls_save_path(ls, &ls->files, NULL, argv[i]);
+						else
+							ls_handle_error(ls, argv[i], LS_MINOR_ERROR);// prints the error and maybe exits according to the error level
+					}
+					else
+						ls_handle_error(ls, argv[i], LS_MAJOR_ERROR);
+				}
+			}
 		}
 		i++;
 	}

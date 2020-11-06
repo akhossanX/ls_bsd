@@ -14,10 +14,11 @@
 # include <pwd.h>
 # include <assert.h>
 
-# define OPTIONS		(15)
-# define MAX_PATH_LEN	(255)
+# define NOPTIONS		15
 
-# define ERR_LS_INVOPT	(-1)
+# define LS_SUCCESS		0
+# define LS_MINOR_ERROR	1
+# define LS_MAJOR_ERROR	2
 
 /*
 **	Mandatory Options
@@ -41,7 +42,7 @@
 # define OPT_U		(1 << 10)	/* Sort by access time. with -lt sort and show access time, */
 								/*	with -l show access time. */
 
-# define OPT_F		(1 << 11)	/* Do not sort, list in directory order, and activate -a options */
+# define OPT_F		(1 << 11)	/* Do not sort, list in directory order, and activate -a option */
 # define OPT_C		(1 << 12)	/* Sort by ctime. with -lt sort and show ctime, with -l show ctime */
 								/*	otherwise sort by ctime. */
 

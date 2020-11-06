@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   path.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/06 12:19:14 by akhossan          #+#    #+#             */
+/*   Updated: 2020/11/06 14:24:26 by akhossan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "ft_ls.h"
 
-t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *path)
+t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *name)
 {
 	t_path	*node;
 
@@ -11,57 +22,41 @@ t_path	*ft_ls_path_new(t_ls *ls, const char *parent, const char *path)
 		ls->errcode = errno;
 		return (NULL);
 	}
-	ft_strncpy(node->name, path, MAX_PATH_LEN);
-	if (parent)
-		ft_strncpy(node->parent, parent, MAX_PATH_LEN);
+	if (!(node->name = ft_strdup(path)))
+	{
+		ls->errcode = errno;
+		free(node);
+		return (NULL);
+	}
+	if (parent && !(node->parent = ft_strdup(parent)))
+	{
+		ls->errcode = errno;
+		ft_strdel(&node->name);
+		free(node);
+		return (NULL);
+	}
 	return (node);
 }
 
-void	ft_ls_path_add(t_path **lst, t_path *new)
+void	ls_save_path(t_ls *ls, t_path **target_list, const char *parent, 
+		const char *name)
 {
+	t_path	*new;
 	t_path	*ptr;
 
-	if (!*lst)
-		*lst = new;
-	else
+	new = ls_path_new(ls, parent, name);	
+	if (new == NULL && ls->errcode == ENOMEM)
+		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+	if (*target_list == NULL)
 	{
-		ptr = *lst;
-		while (ptr->next)
-			ptr = ptr->next;	
-		ptr->next = new;
+		*target_list = new;
+		return ;
 	}
+	ptr = *target_list;
+	while (ptr->next)
+		ptr = ptr->next;
+	ptr->next = new;
 }
-
-void	ft_ls_get_path(t_ls *ls, char *arg)
-{
-	t_path	*path;
-	DIR		*dp;
-	t_path	**target;
-
-	target = &ls->dirs;
-	errno = 0;
-	dp = ft_strequ(arg, ".") ? NULL : opendir(arg);
-	if (errno)
-	{
-		if (errno == ENOTDIR)
-			target = &ls->files;
-		else
-			return ;
-	}
-	else
-		ls->dir_count++;
-	dp ? closedir(dp) : 0;
-	if (!(path = ft_ls_path_new(ls, NULL, arg)))
-		ft_ls_terminate(ls, errno);//should free everything
-	ft_ls_path_add(target, path);
-}
-
-int		ft_ls_get_path(t_ls *ls, char *arg)
-{
-	errno = 0;
-	ls->dp = opendir(arg);	
-}
-
 
 /*
 **	For debugging
