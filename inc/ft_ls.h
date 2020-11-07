@@ -114,6 +114,13 @@ void	ls_display(t_ls *ls, t_path *list);
 void	ls_process_dirs(t_ls *ls, t_path **target);
 void	ls_dirs(t_ls *ls, t_path *dirs);
 
+t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name);
+void	ls_path_add(t_path **target, t_path *path);
+
+void	ls_free_paths(t_path *lst);
+
+DIR		*ls_opendir(t_ls *ls, const char *dir);
+
 t_sort	get_sort_type(int option);
 
 #endif

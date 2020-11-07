@@ -34,7 +34,7 @@ char    *get_full_path(const char *parent, const char *entry)
     char    *tmp;
 
     errno = 0;
-    if (ft_strlen(parent) == 0)
+    if (!parent)
         return (ft_strdup(entry));
     if (!(tmp = ft_strjoin(parent, "/")))
         return (NULL);
@@ -63,22 +63,17 @@ void	ft_ls_closedir(DIR **dirp)
 t_path	*ls_readdir(t_ls *ls, const char *dir)
 {
 	t_path	*dir_content_list;
-	t_path	*entry;
 
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
-	{
-		if (!(entry = ls_path_new(ls, dir, ls->de->d_name)))
-			return (NULL);
-		ls_path_add(&dir_content_list, entry);
-	}
+		ls_save_path(ls, &dir_content_list, dir, ls->de->d_name);
 	if (ls->de == NULL && errno)
 	{
 		ls->errcode = errno;
-		free_paths(dir_content_list);
+		ls_free_paths(dir_content_list);
 		return (NULL);
 	}
-	ft_ls_closedir(ls->dp);
+	ft_ls_closedir(&ls->dp);
 	return (dir_content_list);
 }
 
@@ -94,7 +89,6 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
 {
     char            *fullpath;
     t_path          *content;
-    t_path          *entry;
 
     errno = 0;
     if (!(fullpath = get_full_path(dir->parent, dir->name)))
@@ -102,19 +96,20 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
         ls->errcode = errno;
         return (NULL);
     }
-    if (ls->dp = ls_opendir(ls, fullpath))
+    if ((ls->dp = opendir(fullpath)))
     {
 		content = ls_readdir(ls, fullpath);
 		ft_strdel(&fullpath);
 		return (content);
     }
-	else
-		ls->errcode = errno; // Check later which type of error has taken place
+	ls->errcode = errno;
+	ft_strdel(&fullpath);
+	ls_handle_error(ls, dir->name, get_error_level(ls->errcode));
     return (NULL);
 }
 
 
-int		ls_dirs(t_ls *ls, t_path *dirs)
+void	ls_dirs(t_ls *ls, t_path *dirs)
 {
 	t_path	*ptr;
 	t_path	*dir_content;
@@ -133,6 +128,7 @@ int		ls_dirs(t_ls *ls, t_path *dirs)
 		ls_display(ls, dir_content);
 		if (ls->options & OPT_CAPR)
 			ls_dirs(ls, dir_content);
-		free_paths(dir_content);
+		ls_free_paths(dir_content);
+		ptr = ptr->next;
 	}
 }
