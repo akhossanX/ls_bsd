@@ -53,6 +53,15 @@
 **	Data structures
 */
 
+typedef enum	e_sort
+{
+	ASCII_SORT,
+	ATIME_SORT,
+	CTIME_SORT,
+	MTIME_SORT,
+	SIZE_SORT
+}				t_sort;
+
 typedef struct		s_option
 {
 	char	option;
@@ -65,6 +74,7 @@ typedef struct		s_path
 {
 	char			*name;
 	char			*parent;
+	struct stat		st;
 	struct s_path	*next;
 }					t_path;
 
@@ -77,6 +87,7 @@ typedef struct		s_ls
 	int				errcode;
 	int				operands;
 	int				optend;
+	t_sort			sort_type;
 	struct dirent	*de;
 	DIR				*dp;
 	const char		*prog;
@@ -87,11 +98,22 @@ typedef struct		s_ls
 
 void	parse_cli_arguments(t_ls *ls, char **av);
 void	get_cli_options(t_ls *ls, char **av);
+void	get_cli_operand(t_ls *ls, const char *arg);
 void	ls_usage(t_ls *ls, const char option);
-void	
-ls_save_path(t_ls *ls, t_path **lst, const char *parent, const char *name);
+void	ls_save_path
+		(t_ls *ls, t_path **lst, const char *parent, const char *name);
 void	ls_handle_error(t_ls *ls, const char *arg, int error_level);
 int		get_error_level(int error);
 void	ls_clean_all(t_ls *ls);
+void	ls_process_files(t_ls *ls);
+void	set_stat(t_ls *ls, t_path *target_list);
+
+void	ls_sort(t_ls *ls, t_path **target);
+void	ls_display(t_ls *ls, t_path *list);
+
+void	ls_process_dirs(t_ls *ls, t_path **target);
+void	ls_dirs(t_ls *ls, t_path *dirs);
+
+t_sort	get_sort_type(int option);
 
 #endif

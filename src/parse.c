@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 12:47:21 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/06 14:29:11 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/07 13:37:51 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,31 +60,42 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 	{
 		if (*argv[i] != '-' || i > ls->optend)
 		{
-			errno = 0;
-			if (ls->options & OPT_D)
-				ls_save_path(ls, &ls->all, NULL, argv[i]);
-			else
-			{
-				if (ls_is_dir(ls, argv[i]))
-					ls_save_path(ls, &ls->dirs, NULL, argv[i]);
-				else
-				{
-					if (get_error_level(ls->errcode) == LS_MINOR_ERROR)
-					{
-						if (ls->errcode == ENOTDIR)
-							ls_save_path(ls, &ls->files, NULL, argv[i]);
-						else
-							ls_handle_error(ls, argv[i], LS_MINOR_ERROR);// prints the error and maybe exits according to the error level
-					}
-					else
-						ls_handle_error(ls, argv[i], LS_MAJOR_ERROR);
-				}
-			}
+			ls->operands++;
+			get_cli_operand(ls, argv[i]);
 		}
 		i++;
 	}
-	if (!ls->all && !ls->dirs && !ls->files)
+	if (!ls->all && !ls->dirs && !ls->files && ls->operands == 0)
 		ls_save_path(ls, &ls->dirs, NULL, ".");
+	if (ls->errcode == ENOTDIR)
+		ls->errcode = 0;
+}
+
+void	get_cli_operand(t_ls *ls, const char *arg)
+{
+	errno = 0;
+	if (ls->options & OPT_D)
+		ls_save_path(ls, &ls->all, NULL, arg);
+	else
+	{
+		if (ls_is_dir(ls, arg))
+		{
+			ls_save_path(ls, &ls->dirs, NULL, arg);
+			ls->dir_count++;
+		}
+		else
+		{
+			if (get_error_level(ls->errcode) == LS_MINOR_ERROR)
+			{
+				if (ls->errcode == ENOTDIR)
+					ls_save_path(ls, &ls->files, NULL, arg);
+				else
+					ls_handle_error(ls, arg, LS_MINOR_ERROR);
+			}
+			else
+				ls_handle_error(ls, arg, LS_MAJOR_ERROR);
+		}
+	}
 }
 
 int		is_valid_option(const char opt)
@@ -126,11 +137,4 @@ void		get_cli_options(t_ls *ls, char **argv)
 	}
 	if (argv[i])
 		ls->optend = i;
-}
-
-void	ls_usage(t_ls *ls, const char option)
-{
-	ft_dprintf(STDERR, "%s: %s %c\n", ls->prog, "illegal option --", option);
-	free(ls);
-	exit(1);	
 }

@@ -1,4 +1,32 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ls_dirs.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/07 13:23:53 by akhossan          #+#    #+#             */
+/*   Updated: 2020/11/07 14:45:02 by akhossan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_ls.h"
+
+void	ls_process_dirs(t_ls *ls, t_path **dirs)
+{
+	if (ls->options & OPT_F) // DO NOT sort
+	{
+		if (ls->options & OPT_L)
+			set_stat(ls, *dirs);
+	}
+	else
+	{
+		ls->sort_type = get_sort_type(ls->options);
+		if ((ls->options & OPT_L) ||  ls->sort_type != ASCII_SORT)
+			set_stat(ls, *dirs);
+		ls_sort(ls, dirs);
+	}
+}
 
 char    *get_full_path(const char *parent, const char *entry)
 {
@@ -40,9 +68,9 @@ t_path	*ls_readdir(t_ls *ls, const char *dir)
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
 	{
-		if (!(entry = ft_ls_path_new(ls, dir, ls->de->d_name)))
+		if (!(entry = ls_path_new(ls, dir, ls->de->d_name)))
 			return (NULL);
-		ft_ls_path_add(&dir_content_list, entry);
+		ls_path_add(&dir_content_list, entry);
 	}
 	if (ls->de == NULL && errno)
 	{
@@ -85,27 +113,26 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
     return (NULL);
 }
 
-int		ft_ls_dir(t_ls *ls, t_path *dir)
-{
-	t_path	*dir_content_list;
 
-	dir_content_list = ls_get_dir_content(ls, dir);
-	if (dir_content_list != NULL)
+int		ls_dirs(t_ls *ls, t_path *dirs)
+{
+	t_path	*ptr;
+	t_path	*dir_content;
+
+	if (dirs == NULL)
 	{
-		// list the fucking directory content with the requested informations
-		return (1);	
+		if (ls->errcode)
+			ls_handle_error(ls, NULL, get_error_level(ls->errcode));
+		return ;
 	}
-	return (0);
-}
-
-
-int		ft_ls_cli_dirs(t_ls *ls)
-{
-	t_path	*dir;
-
-	dir = ls->dirs;
-	while (dir != NULL)
+	ptr = dirs;
+	while (ptr != NULL)
 	{
-		if (ft_ls_dir(ls, dir) != 0);
+		dir_content = ls_get_dir_content(ls, ptr);
+		ls_process_dirs(ls, &dir_content);
+		ls_display(ls, dir_content);
+		if (ls->options & OPT_CAPR)
+			ls_dirs(ls, dir_content);
+		free_paths(dir_content);
 	}
 }

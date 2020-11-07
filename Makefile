@@ -20,9 +20,16 @@ OBJDIR	=	obj/
 SRCS = \
 		ft_ls.c \
 		parse.c \
-		opt_map.c \
+		options_map.c \
 		path.c \
-		ls_error.c
+		ls_error.c \
+		ls_usage.c \
+		ls_clean.c \
+		ls_stat.c \
+		ls_files.c \
+		ls_dirs.c \
+		ls_sort.c \
+		ls_display.c
 		#ls_display.c \
 		terminate.c \
 		files.c \
