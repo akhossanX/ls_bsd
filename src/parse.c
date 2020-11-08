@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 12:47:21 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/07 13:37:51 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/08 13:55:42 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,29 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 		ls->errcode = 0;
 }
 
+void	get_cli_as_files(t_ls *ls, const char *arg)
+{
+	DIR	*dp;
+
+	errno = 0;
+	dp = opendir(arg);
+	if (dp == NULL && errno != ENOTDIR)
+	{
+		ls->errcode = errno;
+		ls_handle_error(ls, arg, get_error_level(ls->errcode));
+	}
+	else
+	{
+		ls_closedir(&dp);
+		ls_save_path(ls, &ls->all, NULL, arg);
+	}
+}
+
 void	get_cli_operand(t_ls *ls, const char *arg)
 {
 	errno = 0;
 	if (ls->options & OPT_D)
-		ls_save_path(ls, &ls->all, NULL, arg);
+		get_cli_as_files(ls, arg);
 	else
 	{
 		if (ls_is_dir(ls, arg))

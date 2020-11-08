@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_ls.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/08 11:55:17 by akhossan          #+#    #+#             */
+/*   Updated: 2020/11/08 13:56:03 by akhossan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #ifndef FT_LS_H
 # define FT_LS_H
@@ -49,6 +60,9 @@
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
 
+# define CLI_DIRS	0
+# define RECURSE	1
+
 /*
 **	Data structures
 */
@@ -59,7 +73,8 @@ typedef enum	e_sort
 	ATIME_SORT,
 	CTIME_SORT,
 	MTIME_SORT,
-	SIZE_SORT
+	SIZE_SORT,
+	NO_SORT
 }				t_sort;
 
 typedef struct		s_option
@@ -73,8 +88,8 @@ extern const t_option	g_options[];
 typedef struct		s_path
 {
 	char			*name;
-	char			*parent;
-	struct stat		st;
+	char			*fullpath;
+	struct stat		*st;
 	struct s_path	*next;
 }					t_path;
 
@@ -112,15 +127,20 @@ void	ls_sort(t_ls *ls, t_path **target);
 void	ls_display(t_ls *ls, t_path *list);
 
 void	ls_process_dirs(t_ls *ls, t_path **target);
-void	ls_dirs(t_ls *ls, t_path *dirs);
+void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse);
 
 t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name);
 void	ls_path_add(t_path **target, t_path *path);
 
 void	ls_free_paths(t_path *lst);
+void	ls_closedir(DIR **dirp);
 
 DIR		*ls_opendir(t_ls *ls, const char *dir);
 
 t_sort	get_sort_type(int option);
+
+
+char	*get_full_path(const char *parent, const char *entry);
+
 
 #endif

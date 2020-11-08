@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 12:19:14 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/06 14:24:26 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/08 12:33:34 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,23 +17,25 @@ t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 	t_path	*node;
 
 	errno = 0;
-	if (!(node = (t_path *)ft_memalloc(sizeof(t_path))))
-	{
-		ls->errcode = errno;
+	if (!(node = (t_path *)ft_memalloc(sizeof(t_path))) && 
+			(ls->errcode = errno))
 		return (NULL);
-	}
-	if (!(node->name = ft_strdup(name)))
+	if (!(node->name = ft_strdup(name)) && (ls->errcode = errno))
 	{
-		ls->errcode = errno;
 		free(node);
 		return (NULL);
 	}
-	if (parent && !(node->parent = ft_strdup(parent)))
+	if (!parent)
+ 		node->fullpath = ft_strdup(name);
+	else
+		node->fullpath = get_full_path(parent, name);
+	if (errno)
 	{
 		ls->errcode = errno;
 		ft_strdel(&node->name);
+		ft_strdel(&node->fullpath);
 		free(node);
-		return (NULL);
+		node = NULL;
 	}
 	return (node);
 }

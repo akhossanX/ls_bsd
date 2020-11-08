@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/07 11:21:56 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/07 11:22:04 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/08 12:16:58 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ void	ls_free_paths(t_path *pathlist)
 	{
 		tmp = pathlist;
 		ft_strdel(&pathlist->name);
-		ft_strdel(&pathlist->parent);
+		ft_strdel(&pathlist->fullpath);
+		free(pathlist->st);
 		pathlist = pathlist->next;
 		free(tmp);
 	}

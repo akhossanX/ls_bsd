@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/07 11:22:45 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/07 14:42:39 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/08 14:19:16 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,13 @@ void	ls_process_files(t_ls *ls)
 		target = ls->all;
 	else if (ls->files)
 		target = ls->files;
-	if (ls->options & OPT_F) // DO NOT sort
+	if (ls->sort_type == NO_SORT)
 	{
 		if (ls->options & OPT_L)
 			set_stat(ls, target);
 	}
 	else
 	{
-		ls->sort_type = get_sort_type(ls->options);
 		if ((ls->options & OPT_L) ||  ls->sort_type != ASCII_SORT)
 			set_stat(ls, target);
 		ls_sort(ls, &target);

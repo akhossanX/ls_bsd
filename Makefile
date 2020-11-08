@@ -29,6 +29,7 @@ SRCS = \
 		ls_files.c \
 		ls_dirs.c \
 		ls_sort.c \
+		ls_utils.c \
 		ls_display.c
 		#terminate.c \
 		files.c \

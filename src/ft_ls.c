@@ -59,10 +59,10 @@ int		main(int ac, char **av)
 	(void)ac;
 	ls_init(&ls, av);
 	parse_cli_arguments(ls, av + 1);
+	ls->sort_type = get_sort_type(ls->options);
 	ls_process_files(ls);
 	ls_process_dirs(ls, &ls->dirs);
-	ls_dirs(ls, ls->dirs);
-	//ft_printf("flags: %15b\n", ls->options);
+	ls_dirs(ls, ls->dirs, CLI_DIRS);
 	//print_all(ls);
 	errcode = ls->errcode != 0 ? get_error_level(ls->errcode) : 0;
 	ls_clean_all(ls);
