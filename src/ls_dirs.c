@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/07 13:23:53 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 14:51:13 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/09 10:22:53 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,27 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 {
 	t_path	*dir_content;
@@ -101,17 +122,17 @@ void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 			dirs = dirs->next;
 			continue ;
 		}
-		dir_content = ls_get_dir_content(ls, dirs);
-		if (dir_content == NULL && ls->errcode)
+		if (!(dir_content = ls_get_dir_content(ls, dirs)) && ls->errcode)
 			ls_handle_error(ls, NULL, get_error_level(ls->errcode));
-		if (dir_content != NULL && ((cli_or_recurse == CLI_DIRS &&
-		 	ls->operands > 1) || cli_or_recurse == RECURSE))
-			ft_printf("%s:\n", dirs->fullpath);	
+		if (cli_or_recurse == RECURSE && ls_is_dir(ls, dirs->fullpath))
+			ft_printf("\n%s:\n", dirs->fullpath);
+		if (cli_or_recurse == CLI_DIRS && ls->operands > 1)
+			ft_printf("%s:\n");
 		ls_process_dirs(ls, &dir_content);
 		ls_display(ls, dir_content);
 		if (ls->options & OPT_CAPR)
 			ls_dirs(ls, dir_content, RECURSE);
 		ls_free_paths(dir_content);
-		dirs = dirs->next && ls_isdir(dirs) ? ft_printf("\n") : 0;
+		dirs = dirs->next;
 	}
 }

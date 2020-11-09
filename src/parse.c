@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/05 12:47:21 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 13:55:42 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/09 13:07:56 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ void	parse_cli_arguments(t_ls *ls, char **argv)
 void	get_cli_as_files(t_ls *ls, const char *arg)
 {
 	DIR	*dp;
+	//TODO:
+	// no need to open the file
 
 	errno = 0;
 	dp = opendir(arg);

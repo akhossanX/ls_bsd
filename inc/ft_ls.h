@@ -6,7 +6,7 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/08 11:55:17 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 13:56:03 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/09 10:22:34 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,7 @@ void	ls_path_add(t_path **target, t_path *path);
 
 void	ls_free_paths(t_path *lst);
 void	ls_closedir(DIR **dirp);
+int		ls_is_dir(t_ls *ls, const char *entry);
 
 DIR		*ls_opendir(t_ls *ls, const char *dir);
 
