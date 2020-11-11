@@ -32,7 +32,7 @@ void	print_paths(t_path *lst)
 	p = lst;
 	while (p)
 	{
-		ft_printf("%s\n", p->name);
+		ft_printf("%s\n", p->fullpath);
 		p = p->next;
 	}
 }
@@ -64,7 +64,7 @@ int		main(int ac, char **av)
 	ls_process_dirs(ls, &ls->dirs);
 	ls_dirs(ls, ls->dirs, CLI_DIRS);
 	//print_all(ls);
-	errcode = ls->errcode != 0 ? get_error_level(ls->errcode) : 0;
+	errcode = (ls->errcode == ENOTDIR) ? 0 : get_error_level(ls->errcode);
 	ls_clean_all(ls);
 	return (errcode);
 }

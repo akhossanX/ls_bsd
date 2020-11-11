@@ -143,5 +143,7 @@ t_sort	get_sort_type(int option);
 
 char	*get_full_path(const char *parent, const char *entry);
 
+void	print_paths(t_path *lst);
+
 
 #endif

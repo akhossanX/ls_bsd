@@ -16,7 +16,7 @@ int		get_error_level(int error)
 {
 	if (error == ENOMEM || error == EMFILE || error == ENFILE)
 		return (LS_MAJOR_ERROR);
-	return (LS_MINOR_ERROR);
+	return (error == 0 ? LS_SUCCESS : LS_MINOR_ERROR);
 }
 
 void	ls_handle_error(t_ls *ls, const char *arg, int error_level)

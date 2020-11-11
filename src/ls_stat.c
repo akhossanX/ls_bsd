@@ -22,12 +22,12 @@ void	set_stat(t_ls *ls, t_path *pathlist)
 			ls->errcode = errno;
 			ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
 		}
-		if (lstat(pathlist->fullpath, pathlist->st) == -1)
+		if (stat(pathlist->fullpath, pathlist->st) == -1)
 		{
 			ls->errcode = errno;
 			free(pathlist->st);
 			pathlist->st = NULL;
-			ls_handle_error(ls, pathlist->name, get_error_level(ls->errcode));
+			ls_handle_error(ls, pathlist->fullpath, get_error_level(ls->errcode));
 		}
 		pathlist = pathlist->next;
 	}

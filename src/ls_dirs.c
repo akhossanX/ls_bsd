@@ -86,28 +86,6 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
     return (NULL);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 {
 	t_path	*dir_content;
@@ -127,12 +105,12 @@ void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 		if (cli_or_recurse == RECURSE && ls_is_dir(ls, dirs->fullpath))
 			ft_printf("\n%s:\n", dirs->fullpath);
 		if (cli_or_recurse == CLI_DIRS && ls->operands > 1)
-			ft_printf("%s:\n");
+			ft_printf("%s:\n", dirs->fullpath);
 		ls_process_dirs(ls, &dir_content);
 		ls_display(ls, dir_content);
 		if (ls->options & OPT_CAPR)
 			ls_dirs(ls, dir_content, RECURSE);
 		ls_free_paths(dir_content);
-		dirs = dirs->next;
+		(dirs = dirs->next) && cli_or_recurse == CLI_DIRS ? ft_printf("\n") : 0;
 	}
 }

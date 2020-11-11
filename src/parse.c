@@ -32,7 +32,7 @@ void	filter_options(t_ls *ls, int flag)
 	}
 	flag == OPT_C && (ls->options & OPT_U) ? ls->options ^= OPT_U : 0;
 	flag == OPT_U && (ls->options & OPT_C) ? ls->options ^= OPT_C : 0;
-	flag == OPT_CAPR && (ls->options & OPT_D) ? ls->options ^= OPT_CAPR : 0;
+	flag == OPT_D && (ls->options & OPT_CAPR) ? ls->options ^= OPT_CAPR : 0;
 }
 
 int		ls_is_dir(t_ls *ls, const char *name)
@@ -50,25 +50,45 @@ int		ls_is_dir(t_ls *ls, const char *name)
 	return (1);
 }
 
-void	parse_cli_arguments(t_ls *ls, char **argv)
+int		is_valid_option(const char opt)
 {
 	int		i;
 
-	get_cli_options(ls, argv);
 	i = 0;
-	while (argv[i])
+	while (i < NOPTIONS)
 	{
-		if (*argv[i] != '-' || i > ls->optend)
+		if (g_options[i].option == opt)
+			return (g_options[i].code);
+		i++;
+	}
+	return (0);
+}
+
+void		get_cli_options(t_ls *ls, char **argv)
+{
+	int		i;
+	int		j;
+	int		optcode;
+
+	i = 0;
+	while (argv[i] && !ft_strequ(argv[i], "--"))
+	{
+		if (*argv[i] == '-')
 		{
-			ls->operands++;
-			get_cli_operand(ls, argv[i]);
+			j = 1;
+			while (argv[i][j])
+			{
+				if ((optcode = is_valid_option(argv[i][j])))
+					filter_options(ls, optcode);
+				else
+					ls_usage(ls, argv[i][j]);
+				j++;
+			}
 		}
 		i++;
 	}
-	if (!ls->all && !ls->dirs && !ls->files && ls->operands == 0)
-		ls_save_path(ls, &ls->dirs, NULL, ".");
-	if (ls->errcode == ENOTDIR)
-		ls->errcode = 0;
+	if (argv[i])
+		ls->optend = i;
 }
 
 void	get_cli_as_files(t_ls *ls, const char *arg)
@@ -118,43 +138,23 @@ void	get_cli_operand(t_ls *ls, const char *arg)
 	}
 }
 
-int		is_valid_option(const char opt)
+void	parse_cli_arguments(t_ls *ls, char **argv)
 {
 	int		i;
 
+	get_cli_options(ls, argv);
 	i = 0;
-	while (i < NOPTIONS)
+	while (argv[i])
 	{
-		if (g_options[i].option == opt)
-			return (g_options[i].code);
-		i++;
-	}
-	return (0);
-}
-
-void		get_cli_options(t_ls *ls, char **argv)
-{
-	int		i;
-	int		j;
-	int		optcode;
-
-	i = 0;
-	while (argv[i] && !ft_strequ(argv[i], "--"))
-	{
-		if (*argv[i] == '-')
+		if (*argv[i] != '-' || i > ls->optend)
 		{
-			j = 1;
-			while (argv[i][j])
-			{
-				if ((optcode = is_valid_option(argv[i][j])))
-					filter_options(ls, optcode);
-				else
-					ls_usage(ls, argv[i][j]);
-				j++;
-			}
+			ls->operands++;
+			get_cli_operand(ls, argv[i]);
 		}
 		i++;
 	}
-	if (argv[i])
-		ls->optend = i;
+	if (!ls->all && !ls->dirs && !ls->files && ls->operands == 0)
+		ls_save_path(ls, ls->options & OPT_D ? &ls->all : &ls->dirs, NULL, ".");
+	if (ls->errcode == ENOTDIR)
+		ls->errcode = 0;
 }
