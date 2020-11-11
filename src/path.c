@@ -62,7 +62,6 @@ t_path	*ls_save_path(t_ls *ls, t_path **target_list, const char *parent,
 	t_path	*new;
 
 	new = ls_path_new(ls, parent, name);
-	// set_stat(ls, new);
 	ls_path_append(target_list, new);
 	return (new);
 }

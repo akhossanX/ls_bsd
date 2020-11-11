@@ -12,21 +12,6 @@
 
 #include "ft_ls.h"
 
-void	ls_process_dirs(t_ls *ls, t_path **dirs)
-{
-	if (ls->sort_type == NO_SORT)
-	{
-		if (ls->options & OPT_L)
-			set_stat(ls, *dirs);
-	}
-	else
-	{
-		if ((ls->options & OPT_L) || ls->sort_type != ASCII_SORT)
-			set_stat(ls, *dirs);
-		ls_sort(ls, dirs);
-	}
-}
-
 /*
 **	Closes the directory stream if it is already opened
 **	and sets the pointer to null
@@ -47,10 +32,14 @@ void	ls_closedir(DIR **dirp)
 t_path	*ls_readdir(t_ls *ls, const char *dir)
 {
 	t_path	*dir_content_list;
+	t_path	*new;
 
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
-		ls_save_path(ls, &dir_content_list, dir, ls->de->d_name);
+	{
+		new = ls_save_path(ls, &dir_content_list, dir, ls->de->d_name);
+		set_stat(ls, new);
+	}
 	if (ls->de == NULL && errno)
 	{
 		ls->errcode = errno;
@@ -86,6 +75,21 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
     return (NULL);
 }
 
+int		ls_isdir(t_path *path)
+{
+	return ((path->st->st_mode & S_IFMT) == S_IFDIR);
+}
+
+void	ls_recurse(t_ls *ls, t_path *content)
+{
+	while (content)
+	{
+		if (ls_isdir(content))
+			ls_dirs(ls, content, RECURSE);
+		content = content->next;
+	}
+}
+
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 {
 	t_path	*dir_content;
@@ -102,15 +106,15 @@ void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 		}
 		if (!(dir_content = ls_get_dir_content(ls, dirs)) && ls->errcode)
 			ls_handle_error(ls, NULL, get_error_level(ls->errcode));
-		if (cli_or_recurse == RECURSE && ls_is_dir(ls, dirs->fullpath))
+		if (ls_isdir(dirs) && cli_or_recurse == RECURSE)
 			ft_printf("\n%s:\n", dirs->fullpath);
-		if (cli_or_recurse == CLI_DIRS && ls->operands > 1)
+		if (cli_or_recurse == CLI_ARGS && ls->operands > 1)
 			ft_printf("%s:\n", dirs->fullpath);
-		ls_process_dirs(ls, &dir_content);
+		ls->options & OPT_F ? 0 : ls_sort(&dir_content, get_sort_type(ls->options), ls->options & OPT_R);
 		ls_display(ls, dir_content);
 		if (ls->options & OPT_CAPR)
-			ls_dirs(ls, dir_content, RECURSE);
+			ls_recurse(ls, dir_content);
 		ls_free_paths(dir_content);
-		(dirs = dirs->next) && cli_or_recurse == CLI_DIRS ? ft_printf("\n") : 0;
+		(dirs = dirs->next) && (cli_or_recurse == CLI_ARGS) ? ft_printf("\n") : 0;
 	}
 }

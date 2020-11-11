@@ -78,9 +78,8 @@ int		main(int ac, char **av)
 	// print_all(ls);
 	ls->sort_type = get_sort_type(ls->options);
 	ls_files(ls);
-	// ls_process_files(ls);
 	// ls_process_dirs(ls, &ls->dirs);
-	// ls_dirs(ls, ls->dirs, CLI_DIRS);
+	ls_dirs(ls, ls->dirs, CLI_ARGS);
 	errcode = (ls->errcode == ENOTDIR) ? 0 : get_error_level(ls->errcode);
 	ls_clean_all(ls);
 	return (errcode);

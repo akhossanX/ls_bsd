@@ -121,7 +121,6 @@ t_path	*ls_save_path(
 void	ls_handle_error(t_ls *ls, const char *arg, int error_level);
 int		get_error_level(int error);
 void	ls_clean_all(t_ls *ls);
-void	ls_process_files(t_ls *ls);
 int		set_stat(t_ls *ls, t_path *target_list);
 
 void	ls_sort(t_path **target, t_sort sort_type, int reverse);
