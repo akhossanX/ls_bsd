@@ -60,8 +60,9 @@
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
 
-# define CLI_DIRS	0
+# define CLI_ARGS	0
 # define RECURSE	1
+# define NOPARENT	NULL
 
 /*
 **	Data structures
@@ -93,7 +94,7 @@ typedef struct		s_path
 	struct s_path	*next;
 }					t_path;
 
-typedef int	(*t_cmp)(t_path *a, t_path *b, int flg);
+typedef long	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
 
 typedef struct		s_ls
 {
@@ -115,22 +116,25 @@ void	parse_cli_arguments(t_ls *ls, char **av);
 void	get_cli_options(t_ls *ls, char **av);
 void	get_cli_operand(t_ls *ls, const char *arg);
 void	ls_usage(t_ls *ls, const char option);
-void	ls_save_path
-		(t_ls *ls, t_path **lst, const char *parent, const char *name);
+t_path	*ls_save_path(
+		t_ls *ls, t_path **lst, const char *parent, const char *name);
 void	ls_handle_error(t_ls *ls, const char *arg, int error_level);
 int		get_error_level(int error);
 void	ls_clean_all(t_ls *ls);
 void	ls_process_files(t_ls *ls);
-void	set_stat(t_ls *ls, t_path *target_list);
+int		set_stat(t_ls *ls, t_path *target_list);
 
-void	ls_sort(t_ls *ls, t_path **target);
+void	ls_sort(t_path **target, t_sort sort_type, int reverse);
 void	ls_display(t_ls *ls, t_path *list);
 
 void	ls_process_dirs(t_ls *ls, t_path **target);
+void	process_arguments(t_ls *ls);
+
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse);
+void	ls_files(t_ls *ls);
 
 t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name);
-void	ls_path_add(t_path **target, t_path *path);
+void	ls_path_append(t_path **lst, t_path *path);
 
 void	ls_free_paths(t_path *lst);
 void	ls_closedir(DIR **dirp);

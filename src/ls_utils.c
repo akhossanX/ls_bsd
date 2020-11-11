@@ -19,8 +19,6 @@ char    *get_full_path(const char *parent, const char *entry)
     char    *tmp;
 
     errno = 0;
-    if (!parent)
-        return (ft_strdup(entry));
 	if (parent[ft_strlen(parent) - 1] != '/')
 	{
     	if (!(tmp = ft_strjoin(parent, "/")))

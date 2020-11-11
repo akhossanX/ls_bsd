@@ -31,3 +31,25 @@ Recursive listing:
 
 	+ Once we found a directory we display it name followed by ':' then its content;
 	+ 
+
+Phase 1: Stocking all cli arguments and sorting them in ASCII order unless -f is specified
+
+
+Phase 2: Verifying arguments existence
+
+    + stat all entries
+        if an error occured report it and deallocate the entry
+        else check the type of the entry
+            if it is a file add it to ls->files
+            else add it to ls->dirs
+
+Phase 3: Sort files and directories lists independantly
+
+    + Process files first:
+        lookup ls->all and ls->files for list of files
+        check sort type:
+            if ASCII sort: do not sort (because they are already sorted)
+            else sort according to the given sort flag (-t{-u, -c}, -s)
+        dispaly all files according to format flag (-l, -C, -1)
+
+
