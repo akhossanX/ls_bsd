@@ -65,5 +65,10 @@ Phase 3: Sort files and directories lists independantly
 Phase 4: Handle all display formats 
 
     + long format (-l):
+        if the entries list belongs to a directory listing:
+            display total blocks in one single line
+        for each entry in list:
+            display the file type
+            display permissions        //TODO
 
 

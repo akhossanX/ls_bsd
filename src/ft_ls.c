@@ -69,8 +69,8 @@ int		main(int ac, char **av)
 	if (ls->sort_type != NO_SORT)
 		ls->all = ls_sort(ls->all, ASCII_SORT, ls->options & OPT_R);
 	process_arguments(ls);
-	ls_files(ls);
-	ls_dirs(ls, ls->dirs, CLI_ARGS);
+	ls_cli_files(ls);
+	ls_dirs(ls, ls->dirs, CLI);
 	errcode = ls->ret;
 	ls_clean_all(ls);
 	return (errcode);

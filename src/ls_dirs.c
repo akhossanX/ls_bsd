@@ -34,11 +34,13 @@ t_path	*ls_readdir(t_ls *ls, t_path *dir)
 	t_path	*dir_content_list;
 	t_path	*new;
 
+	ls->blocks = 0;
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
 	{
 		new = ls_save_path(ls, &dir_content_list, dir->fullpath, ls->de->d_name);
 		set_stat(ls, new);
+		ls->blocks += new->st->st_blocks;
 	}
 	if (ls->de == NULL && errno)
 	{
@@ -95,14 +97,14 @@ void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 		content = ls_get_dir_content(ls, dirs);
 		if (cli_or_recurse == RECURSE)
 			ft_printf("\n%s:\n", dirs->fullpath);
-		if (cli_or_recurse == CLI_ARGS && ls->operands > 1)
+		if (cli_or_recurse == CLI && ls->operands > 1)
 			ft_printf("%s:\n", dirs->fullpath);
 		if (ls->sort_type != NO_SORT)
 			content = ls_sort(content, ls->sort_type, ls->options & OPT_R);
-		ls_display(ls, content);
+		ls_display(ls, content, DIRECTORY);
 		if (content && ls->options & OPT_CAPR)
 			ls_dirs(ls, content, RECURSE);
 		ls_free_paths(content);
-		(dirs = dirs->next) && cli_or_recurse == CLI_ARGS ? ft_printf("\n") : 0;
+		(dirs = dirs->next) && cli_or_recurse == CLI ? ft_printf("\n") : 0;
 	}
 }

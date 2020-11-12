@@ -30,6 +30,11 @@
 # define LS_SUCCESS		0
 # define LS_MINOR_ERROR	1
 # define LS_MAJOR_ERROR	2
+# define CLI			0
+# define RECURSE		1
+# define NOPARENT		NULL
+# define FILES			0
+# define DIRECTORY		1
 
 /*
 **	Mandatory Options
@@ -60,9 +65,7 @@
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
 
-# define CLI_ARGS	0
-# define RECURSE	1
-# define NOPARENT	NULL
+
 
 /*
 **	Data structures
@@ -99,10 +102,10 @@ typedef int64_t	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
 typedef struct		s_ls
 {
 	int16_t			options;
-	int				dir_count;//command line directories counter
 	int				err;
 	int				ret; // the code to be returned on program exit
 	int				operands;
+	int				blocks;
 	int				optend;
 	t_sort			sort_type;
 	struct dirent	*de;
@@ -125,12 +128,12 @@ void	ls_clean_all(t_ls *ls);
 int		set_stat(t_ls *ls, t_path *target_list);
 
 t_path	*ls_sort(t_path *target, t_sort sort_type, int order);
-void	ls_display(t_ls *ls, t_path *list);
+void	ls_display(t_ls *ls, t_path *list, int dir_or_files);
 
 void	process_arguments(t_ls *ls);
 
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse);
-void	ls_files(t_ls *ls);
+void	ls_cli_files(t_ls *ls);
 
 t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name);
 void	ls_path_append(t_path **lst, t_path *path);
