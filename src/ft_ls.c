@@ -28,14 +28,7 @@ static void	ls_init(t_ls **ls, char **av)
 		exit(errno);
 	}
 	(*ls)->prog = av[0];
-	(*ls)->options = 0;
-	(*ls)->dirs = NULL;
-	(*ls)->files = NULL;
-	(*ls)->all = NULL;
-	(*ls)->dir_count = 0;
 	(*ls)->optend = INT_MAX;
-	(*ls)->errcode = 0;
-	(*ls)->operands = 0;
 }
 
 /*********************************  For debugging *********************************************/
@@ -72,15 +65,13 @@ int		main(int ac, char **av)
 	(void)ac;
 	ls_init(&ls, av);
 	parse_cli_arguments(ls, av + 1);
-	// Sort the cli argument in ascii order if -f is not active
-	ls->options & OPT_F ?  0 : ls_sort(&ls->all, ASCII_SORT, ls->options & OPT_R);
-	process_arguments(ls);
-	// print_all(ls);
 	ls->sort_type = get_sort_type(ls->options);
+	if (ls->sort_type != NO_SORT)
+		ls->all = ls_sort(ls->all, ASCII_SORT, ls->options & OPT_R);
+	process_arguments(ls);
 	ls_files(ls);
-	// ls_process_dirs(ls, &ls->dirs);
 	ls_dirs(ls, ls->dirs, CLI_ARGS);
-	errcode = (ls->errcode == ENOTDIR) ? 0 : get_error_level(ls->errcode);
+	errcode = ls->ret;
 	ls_clean_all(ls);
 	return (errcode);
 }

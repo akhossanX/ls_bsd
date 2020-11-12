@@ -18,9 +18,9 @@ t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 
 	errno = 0;
 	if (!(node = (t_path *)ft_memalloc(sizeof(t_path))) && 
-			(ls->errcode = errno))
+			(ls->err = errno))
 		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
-	if (!(node->name = ft_strdup(name)) && (ls->errcode = errno))
+	if (!(node->name = ft_strdup(name)) && (ls->err = errno))
 	{
 		free(node);
 		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
@@ -31,7 +31,7 @@ t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 		node->fullpath = get_full_path(parent, name);
 	if (errno)
 	{
-		ls->errcode = errno;
+		ls->err = errno;
 		ft_strdel(&node->name);
 		ft_strdel(&node->fullpath);
 		free(node);

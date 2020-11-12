@@ -31,7 +31,7 @@ struct stat	*new_stat(t_ls *ls)
 	st = (struct stat *)ft_memalloc(sizeof(struct stat));
 	if (errno != 0)
 	{
-		ls->errcode = errno;
+		ls->err = errno;
 		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
 	}
 	return (st);
@@ -42,8 +42,8 @@ int		set_stat(t_ls *ls, t_path *entry)
 	entry->st = new_stat(ls);
 	if (lstat(entry->fullpath, entry->st) == -1)
 	{
-		ls->errcode = errno;
-		ls_handle_error(ls, entry->name, get_error_level(ls->errcode));
+		ls->err = errno;
+		ls_handle_error(ls, entry->name, get_error_level(ls->err));
 		return (0);
 	}
 	return (1);

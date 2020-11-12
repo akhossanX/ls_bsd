@@ -94,13 +94,14 @@ typedef struct		s_path
 	struct s_path	*next;
 }					t_path;
 
-typedef long	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
+typedef int64_t	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
 
 typedef struct		s_ls
 {
 	int16_t			options;
 	int				dir_count;//command line directories counter
-	int				errcode;
+	int				err;
+	int				ret; // the code to be returned on program exit
 	int				operands;
 	int				optend;
 	t_sort			sort_type;
@@ -123,10 +124,9 @@ int		get_error_level(int error);
 void	ls_clean_all(t_ls *ls);
 int		set_stat(t_ls *ls, t_path *target_list);
 
-void	ls_sort(t_path **target, t_sort sort_type, int reverse);
+t_path	*ls_sort(t_path *target, t_sort sort_type, int order);
 void	ls_display(t_ls *ls, t_path *list);
 
-void	ls_process_dirs(t_ls *ls, t_path **target);
 void	process_arguments(t_ls *ls);
 
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse);
@@ -139,14 +139,9 @@ void	ls_free_paths(t_path *lst);
 void	ls_closedir(DIR **dirp);
 int		ls_is_dir(t_ls *ls, const char *entry);
 
-DIR		*ls_opendir(t_ls *ls, const char *dir);
-
 t_sort	get_sort_type(int option);
 
-
 char	*get_full_path(const char *parent, const char *entry);
-
-void	print_paths(t_path *lst);
 
 
 #endif

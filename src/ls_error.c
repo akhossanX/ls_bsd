@@ -23,13 +23,14 @@ void	ls_handle_error(t_ls *ls, const char *arg, int error_level)
 {
 	if (error_level == LS_MAJOR_ERROR)
 	{
-		ft_dprintf(STDERR, "%s: %s\n", ls->prog, strerror(ls->errcode));
+		ft_dprintf(STDERR, "%s: %s\n", ls->prog, strerror(ls->err));
 		ls_clean_all(ls);
 		exit(LS_MAJOR_ERROR);
 	}
 	else
 	{
 		ft_dprintf(STDERR, "%s: %s: %s\n", 
-			ls->prog, arg, strerror(ls->errcode));
+			ls->prog, arg, strerror(ls->err));
+		ls->ret = LS_MINOR_ERROR;
 	}
 }
