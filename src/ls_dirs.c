@@ -34,13 +34,12 @@ t_path	*ls_readdir(t_ls *ls, t_path *dir)
 	t_path	*dir_content_list;
 	t_path	*new;
 
-	ls->blocks = 0;
+	ft_bzero((void *)&ls->display, sizeof(t_display));// For each dir we initialize all display data to 0
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
 	{
 		new = ls_save_path(ls, &dir_content_list, dir->fullpath, ls->de->d_name);
 		set_stat(ls, new);
-		ls->blocks += new->st->st_blocks;
 	}
 	if (ls->de == NULL && errno)
 	{

@@ -33,26 +33,26 @@ static void	ls_init(t_ls **ls, char **av)
 
 /*********************************  For debugging *********************************************/
 
-// void	print_paths(t_path *lst)
-// {
-// 	t_path	*p;
+void	print_paths(t_path *lst)
+{
+	t_path	*p;
 
-// 	p = lst;
-// 	while (p)
-// 	{
-// 		ft_printf("%s\n", p->fullpath);
-// 		p = p->next;
-// 	}
-// }
+	p = lst;
+	while (p)
+	{
+		ft_printf("%s\n", p->fullpath);
+		p = p->next;
+	}
+}
 
-// static void	print_all(t_ls *ls)
-// {	
-// 	ft_printf("{red}DIRS:\n");
-// 	print_paths(ls->dirs);
-// 	ft_printf("{blue}FILES:\n");
-// 	print_paths(ls->files);
-// 	ft_printf("{eoc}");
-// }
+void	print_all(t_ls *ls)
+{	
+	ft_printf("{red}DIRS:\n");
+	print_paths(ls->dirs);
+	ft_printf("{blue}FILES:\n");
+	print_paths(ls->files);
+	ft_printf("{eoc}");
+}
 
 /************************************************************************************************/
 

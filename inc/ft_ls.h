@@ -94,10 +94,22 @@ typedef struct		s_path
 	char			*name;
 	char			*fullpath;
 	struct stat		*st;
+	struct passwd	*usrinfo;
+	char			*usrname;
+	char			*grpname;
+	struct group	*grpinfo;
 	struct s_path	*next;
 }					t_path;
 
 typedef int64_t	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
+
+typedef struct		s_display
+{
+	int				lnk_length;
+	int				owner_length;
+	int				grp_length;
+	int				blocks;
+}					t_display;
 
 typedef struct		s_ls
 {
@@ -105,9 +117,9 @@ typedef struct		s_ls
 	int				err;
 	int				ret; // the code to be returned on program exit
 	int				operands;
-	int				blocks;
 	int				optend;
 	t_sort			sort_type;
+	t_display		display;
 	struct dirent	*de;
 	DIR				*dp;
 	const char		*prog;
@@ -145,6 +157,11 @@ int		ls_is_dir(t_ls *ls, const char *entry);
 t_sort	get_sort_type(int option);
 
 char	*get_full_path(const char *parent, const char *entry);
+
+
+void	print_all(t_ls *ls);
+
+
 
 
 #endif

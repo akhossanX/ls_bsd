@@ -22,6 +22,8 @@ void	ls_free_paths(t_path *pathlist)
 		ft_strdel(&pathlist->name);
 		ft_strdel(&pathlist->fullpath);
 		free(pathlist->st);
+		ft_strdel(&pathlist->usrname);
+		ft_strdel(&pathlist->grpname);
 		pathlist = pathlist->next;
 		free(tmp);
 	}

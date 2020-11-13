@@ -1,22 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ls_files.c                                         :+:      :+:    :+:   */
+/*   ft_memmove.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/07 11:22:45 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 14:19:16 by akhossan         ###   ########.fr       */
+/*   Created: 2019/03/30 14:54:41 by akhossan          #+#    #+#             */
+/*   Updated: 2019/03/31 15:20:46 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "libft.h"
 
-void	ls_cli_files(t_ls *ls)
+void	*ft_memmove(void *dst, const void *src, size_t len)
 {
-	if (ls->sort_type != ASCII_SORT && ls->sort_type != NO_SORT)
-		ls->files = ls_sort(ls->files, ls->sort_type, ls->options & OPT_R);
-	ls_display(ls, ls->files, FILES);
-	if (ls->files && ls->dirs)
-		ft_printf("\n");
+	size_t	i;
+	char	*tmp_dst;
+	char	*tmp_src;
+
+	tmp_dst = (char *)dst;
+	tmp_src = (char *)src;
+	if (tmp_dst < tmp_src)
+	{
+		i = 0;
+		while (i < len)
+		{
+			tmp_dst[i] = tmp_src[i];
+			i++;
+		}
+	}
+	else
+	{
+		i = 0;
+		while ((int)(--len) >= 0)
+			tmp_dst[i + len] = tmp_src[len];
+	}
+	return (dst);
 }

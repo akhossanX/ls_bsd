@@ -1,22 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ls_files.c                                         :+:      :+:    :+:   */
+/*   ft_memdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/07 11:22:45 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 14:19:16 by akhossan         ###   ########.fr       */
+/*   Created: 2020/11/13 19:34:02 by akhossan          #+#    #+#             */
+/*   Updated: 2020/11/13 19:34:04 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ls.h"
+#include "libft.h"
 
-void	ls_cli_files(t_ls *ls)
+void	*ft_memdup(const void *s, size_t n)
 {
-	if (ls->sort_type != ASCII_SORT && ls->sort_type != NO_SORT)
-		ls->files = ls_sort(ls->files, ls->sort_type, ls->options & OPT_R);
-	ls_display(ls, ls->files, FILES);
-	if (ls->files && ls->dirs)
-		ft_printf("\n");
+	void	*mem;
+
+	if (n == 0)
+		return (NULL);
+	mem = ft_memalloc(n);
+	if (mem == NULL)
+		return (NULL);
+	ft_memmove(mem, s, n);
+	return (mem);
 }

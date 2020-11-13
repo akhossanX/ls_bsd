@@ -36,6 +36,45 @@ struct stat	*new_stat(t_ls *ls)
 	}
 	return (st);
 }
+//TODO: This function should be added to libft
+int		nb_length(int nb)
+{
+	int		len;
+
+	len = 1;
+	while (nb / 10)
+	{
+		nb /= 10;
+		len++;
+	}
+	return (len);
+}
+
+void	set_display_data(t_ls *ls, t_path *entry)
+{
+	int		max_lnk_len;
+	int		max_owner_len;
+	int		max_grp_len;
+
+	if (ls->options & OPT_L)
+	{
+		ls->display.blocks += entry->st->st_blocks;
+		max_lnk_len = nb_length(entry->st->st_nlink);
+		ls->display.lnk_length < max_lnk_len ? 
+			ls->display.lnk_length = max_lnk_len : 0;
+		errno = 0;
+		entry->usrinfo = getpwuid(entry->st->st_uid);
+		entry->usrname = ft_strdup(entry->usrinfo->pw_name);
+		max_owner_len = ft_strlen(entry->usrname);
+		ls->display.owner_length < max_owner_len ?
+			ls->display.owner_length = max_owner_len : 0;
+		entry->grpinfo = getgrgid(entry->st->st_gid);
+		entry->grpname = ft_strdup(entry->grpinfo->gr_name);
+		max_grp_len = ft_strlen(entry->grpname);
+		ls->display.grp_length < max_grp_len ?
+			ls->display.grp_length = max_grp_len : 0;
+	}
+}
 
 int		set_stat(t_ls *ls, t_path *entry)
 {
@@ -46,6 +85,7 @@ int		set_stat(t_ls *ls, t_path *entry)
 		ls_handle_error(ls, entry->name, get_error_level(ls->err));
 		return (0);
 	}
+	set_display_data(ls, entry);
 	return (1);
 }
 
@@ -58,13 +98,11 @@ void	process_arguments(t_ls *ls)
 	while (ptr != NULL)
 	{
 		next = ptr->next;
+		ptr->next = NULL;
 		if (set_stat(ls, ptr))
 			add_entry_by_type(ls, ptr);
 		else
-		{
-			ptr->next = NULL;
 			ls_free_paths(ptr);
-		}
 		ptr = next;
 	}
 	ls->all = NULL;
