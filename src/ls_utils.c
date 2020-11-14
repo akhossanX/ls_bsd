@@ -22,7 +22,9 @@ char    *get_full_path(const char *parent, const char *entry)
 	if (parent[ft_strlen(parent) - 1] != '/')
 	{
     	if (!(tmp = ft_strjoin(parent, "/")))
+		{
         	return (NULL);
+		}
 		fullpath = ft_strjoin(tmp, entry);
 		ft_strdel(&tmp);
 	}
