@@ -27,6 +27,7 @@ static void	ls_init(t_ls **ls, char **av)
 		perror(av[0]);
 		exit(errno);
 	}
+	(void)ft_bzero(&(*ls)->display, sizeof(t_display));
 	(*ls)->prog = av[0];
 	(*ls)->optend = INT_MAX;
 }

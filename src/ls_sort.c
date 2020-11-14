@@ -25,27 +25,27 @@ int64_t		nbcmp(t_path *p1, t_path *p2, t_sort sort_type)
 	ret = 0;
 	if (sort_type == ATIME_SORT)
 	{
-#ifdef __APPLE__
+		#ifdef __APPLE__
 		ret = p1->st->st_atimespec.tv_sec - p2->st->st_atimespec.tv_sec;
-#else
+		#else
 		ret = p1->st->st_atim.tv_sec - p2->st->st_atim.tv_sec;
-#endif
+		#endif
 	}	
 	else if (sort_type == MTIME_SORT)
 	{
-#ifdef __APPLE__
+		#ifdef __APPLE__
 		ret = p1->st->st_mtimespec.tv_sec - p2->st->st_mtimespec.tv_sec;
-#else
+		#else
 		ret = p1->st->st_mtim.tv_sec - p2->st->st_mtim.tv_sec;
-#endif
+		#endif
 	}
 	else if (sort_type == CTIME_SORT)
 	{
-#ifdef __APPLE__
+		#ifdef __APPLE__
 		ret = p1->st->st_ctimespec.tv_sec - p2->st->st_ctimespec.tv_sec;
-#else
+		#else
 		ret = p1->st->st_ctim.tv_sec - p2->st->st_ctim.tv_sec;
-#endif
+		#endif
 	}	
 	else if (sort_type == SIZE_SORT)
 	{

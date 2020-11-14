@@ -69,8 +69,18 @@ Phase 4: Handle all display formats
             display total blocks in one single line
         for each entry in list:
             display the file type
-            display permissions        done
+            display permissions        (sticky bit and ACL still not handled )
             display owner and group name almost done (Nb: if no owner or group just display the id as it is).
+            display size in bytes (minor, major for character and block special files)
+            display date (Thu Nov 24 18:22:48 1986\n\0)
+
+
+
+Remaining tasks:
+
+        ACL attributes
+        if no owner/group display uid/gid
+        -a and -A flags not handled yet
             
 
 

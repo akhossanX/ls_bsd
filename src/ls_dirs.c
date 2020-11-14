@@ -38,6 +38,7 @@ t_path	*ls_readdir(t_ls *ls, t_path *dir)
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
 	{
+		// Filter . and .. according to -a and -A flags
 		new = ls_save_path(ls, &dir_content_list, dir->fullpath, ls->de->d_name);
 		set_stat(ls, new);
 	}

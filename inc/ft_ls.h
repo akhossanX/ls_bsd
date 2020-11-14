@@ -35,6 +35,7 @@
 # define NOPARENT		NULL
 # define FILES			0
 # define DIRECTORY		1
+# define SIX_MONTHS		15778800
 
 /*
 **	Mandatory Options
@@ -96,8 +97,10 @@ typedef struct		s_path
 	struct stat		*st;
 	struct passwd	*usrinfo;
 	char			*usrname;
-	char			*grpname;
 	struct group	*grpinfo;
+	char			*grpname;
+	int32_t			major;
+	int32_t			minor;
 	struct s_path	*next;
 }					t_path;
 
@@ -109,6 +112,9 @@ typedef struct		s_display
 	int				owner_length;
 	int				grp_length;
 	int				blocks;
+	int				size_length;
+	int				has_cbdev;
+	time_t			time;
 }					t_display;
 
 typedef struct		s_ls

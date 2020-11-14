@@ -50,29 +50,51 @@ int		nb_length(int nb)
 	return (len);
 }
 
+int32_t	get_minor_major(t_path *entry)
+{
+	dev_t	st_rdev;
+
+	st_rdev = entry->st->st_rdev;
+	entry->major = st_rdev >> 24;
+	entry->minor = st_rdev & 0xff;
+	return (entry->major > entry->minor ? entry->major : entry->minor);
+}
+
 void	set_display_data(t_ls *ls, t_path *entry)
 {
-	int		max_lnk_len;
-	int		max_owner_len;
-	int		max_grp_len;
+	int		lnk_len;
+	int		owner_len;
+	int		grp_len;
+	int		size_len;
 
 	if (ls->options & OPT_L)
 	{
 		ls->display.blocks += entry->st->st_blocks;
-		max_lnk_len = nb_length(entry->st->st_nlink);
-		ls->display.lnk_length < max_lnk_len ? 
-			ls->display.lnk_length = max_lnk_len : 0;
+		lnk_len = nb_length(entry->st->st_nlink);
+		ls->display.lnk_length < lnk_len ? 
+			ls->display.lnk_length = lnk_len : 0;
 		errno = 0;
 		entry->usrinfo = getpwuid(entry->st->st_uid);
 		entry->usrname = ft_strdup(entry->usrinfo->pw_name);
-		max_owner_len = ft_strlen(entry->usrname);
-		ls->display.owner_length < max_owner_len ?
-			ls->display.owner_length = max_owner_len : 0;
+		owner_len = ft_strlen(entry->usrname); 
+		ls->display.owner_length < owner_len ?
+			ls->display.owner_length = owner_len : 0;
 		entry->grpinfo = getgrgid(entry->st->st_gid);
 		entry->grpname = ft_strdup(entry->grpinfo->gr_name);
-		max_grp_len = ft_strlen(entry->grpname);
-		ls->display.grp_length < max_grp_len ?
-			ls->display.grp_length = max_grp_len : 0;
+		grp_len = ft_strlen(entry->grpname); // Owner's group length
+		ls->display.grp_length < grp_len ? 
+			ls->display.grp_length = grp_len : 0;
+		// SIZE OR MINOR-MAJOR
+		if ((entry->st->st_mode & S_IFMT) == S_IFBLK 
+			|| (entry->st->st_mode & S_IFMT) == S_IFCHR)
+		{
+			size_len = nb_length(get_minor_major(entry));
+			ls->display.has_cbdev = 1;
+		}
+		else
+			size_len = nb_length(entry->st->st_size);
+		ls->display.size_length < size_len ?
+			ls->display.size_length = size_len : 0;
 	}
 }
 
