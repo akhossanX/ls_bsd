@@ -78,9 +78,16 @@ Phase 4: Handle all display formats
 
 Remaining tasks:
 
+        if no owner/group display uid/gid     done
+
+        -a and -A flags not handled yet       done
+        -g                                    done
+
+
+
         ACL attributes
-        if no owner/group display uid/gid
-        -a and -A flags not handled yet
+        Block format display
+        Colour flag (-G)
             
 
 

@@ -12,19 +12,6 @@
 
 #include "libft.h"
 
-static int	nb_length(long long nb)
-{
-	size_t	i;
-
-	i = 1;
-	while (nb / 10 != 0)
-	{
-		i++;
-		nb /= 10;
-	}
-	return (i);
-}
-
 char		*ft_ltoa(long long n)
 {
 	int					is_neg;
@@ -32,7 +19,7 @@ char		*ft_ltoa(long long n)
 	int					digits;
 	unsigned long long	nbr;
 
-	is_neg = (n < 0 ? 1 : 0);
+	is_neg = n < 0;
 	digits = nb_length(n);
 	if (!(number = ft_strnew(digits + is_neg)))
 		return (NULL);

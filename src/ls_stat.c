@@ -36,19 +36,6 @@ struct stat	*new_stat(t_ls *ls)
 	}
 	return (st);
 }
-//TODO: This function should be added to libft
-int		nb_length(int nb)
-{
-	int		len;
-
-	len = 1;
-	while (nb / 10)
-	{
-		nb /= 10;
-		len++;
-	}
-	return (len);
-}
 
 int32_t	get_minor_major(t_path *entry)
 {
@@ -60,42 +47,76 @@ int32_t	get_minor_major(t_path *entry)
 	return (entry->major > entry->minor ? entry->major : entry->minor);
 }
 
+void	set_owner_length(t_ls *ls, t_path *entry)
+{
+	int		owner_len;
+
+	errno = 0;
+	if (!(entry->usrinfo = getpwuid(entry->st->st_uid)) || 
+		!(entry->usrname = ft_strdup(entry->usrinfo->pw_name)))
+	{
+		if (errno && (ls->err = errno))
+			ls_handle_error(ls, entry->name, get_error_level(ls->err));
+	}
+	if (entry->usrinfo == NULL)
+	{
+		if (!(entry->usrname = ft_ltoa(entry->st->st_uid)))
+		{
+			ls->err = errno;
+			ls_handle_error(ls, entry->name, get_error_level(ls->err));
+		}
+	}
+	owner_len = ft_strlen(entry->usrname);
+	if (ls->display.owner_length < owner_len)
+		ls->display.owner_length = owner_len;
+}
+
+void	set_group_length(t_ls *ls, t_path *entry)
+{
+	int		grp_len;
+
+	errno = 0;
+	if (!(entry->grpinfo = getgrgid(entry->st->st_gid)) ||
+		!(entry->grpname = ft_strdup(entry->grpinfo->gr_name)))
+	{
+		if (errno && (ls->err = errno))
+			ls_handle_error(ls, entry->name, get_error_level(ls->err));
+	}
+	if (entry->grpinfo == NULL)
+	{
+		if (!(entry->grpname = ft_ltoa(entry->st->st_gid)))
+		{
+			ls->err = errno;
+			ls_handle_error(ls, entry->name, get_error_level(ls->err));
+		}
+	}
+	grp_len = ft_strlen(entry->grpname);
+	if (ls->display.grp_length < grp_len)
+		ls->display.grp_length = grp_len;
+}
+
 void	set_display_data(t_ls *ls, t_path *entry)
 {
 	int		lnk_len;
-	int		owner_len;
-	int		grp_len;
 	int		size_len;
 
-	if (ls->options & OPT_L)
+	ls->display.blocks += entry->st->st_blocks;
+	lnk_len = nb_length(entry->st->st_nlink);
+	ls->display.lnk_length < lnk_len ? 
+		ls->display.lnk_length = lnk_len : 0;
+	ls->options & OPT_G ? 0 : set_owner_length(ls, entry);
+	set_group_length(ls, entry);
+	// SIZE OR MINOR-MAJOR
+	if ((entry->st->st_mode & S_IFMT) == S_IFBLK 
+		|| (entry->st->st_mode & S_IFMT) == S_IFCHR)
 	{
-		ls->display.blocks += entry->st->st_blocks;
-		lnk_len = nb_length(entry->st->st_nlink);
-		ls->display.lnk_length < lnk_len ? 
-			ls->display.lnk_length = lnk_len : 0;
-		errno = 0;
-		entry->usrinfo = getpwuid(entry->st->st_uid);
-		entry->usrname = ft_strdup(entry->usrinfo->pw_name);
-		owner_len = ft_strlen(entry->usrname); 
-		ls->display.owner_length < owner_len ?
-			ls->display.owner_length = owner_len : 0;
-		entry->grpinfo = getgrgid(entry->st->st_gid);
-		entry->grpname = ft_strdup(entry->grpinfo->gr_name);
-		grp_len = ft_strlen(entry->grpname); // Owner's group length
-		ls->display.grp_length < grp_len ? 
-			ls->display.grp_length = grp_len : 0;
-		// SIZE OR MINOR-MAJOR
-		if ((entry->st->st_mode & S_IFMT) == S_IFBLK 
-			|| (entry->st->st_mode & S_IFMT) == S_IFCHR)
-		{
-			size_len = nb_length(get_minor_major(entry));
-			ls->display.has_cbdev = 1;
-		}
-		else
-			size_len = nb_length(entry->st->st_size);
-		ls->display.size_length < size_len ?
-			ls->display.size_length = size_len : 0;
+		size_len = nb_length(get_minor_major(entry));
+		ls->display.has_cbdev = 1;
 	}
+	else
+		size_len = nb_length(entry->st->st_size);
+	ls->display.size_length < size_len ?
+		ls->display.size_length = size_len : 0;
 }
 
 int		set_stat(t_ls *ls, t_path *entry)
@@ -107,7 +128,8 @@ int		set_stat(t_ls *ls, t_path *entry)
 		ls_handle_error(ls, entry->name, get_error_level(ls->err));
 		return (0);
 	}
-	set_display_data(ls, entry);
+	if ((ls->options & OPT_L) || (ls->options & OPT_G))
+		set_display_data(ls, entry);
 	return (1);
 }
 

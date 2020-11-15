@@ -24,6 +24,22 @@ void	ls_closedir(DIR **dirp)
 	*dirp = NULL;
 }
 
+int		filter_hidden_entries(t_ls *ls)
+{
+	if (ls->de->d_name[0] == '.')
+	{
+		if (ls->options & OPT_CAPA)
+		{
+			if (ft_strequ(ls->de->d_name, ".") || 
+				ft_strequ(ls->de->d_name, ".."))
+				return (1);
+		}
+		else if (!(ls->options & OPT_A))
+			return (1);
+	}
+	return (0);
+}
+
 /*
 **	Reads the content of a directory stream and returns its content
 **	On error it returns NULL and sets ls->err according to errno
@@ -38,7 +54,8 @@ t_path	*ls_readdir(t_ls *ls, t_path *dir)
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
 	{
-		// Filter . and .. according to -a and -A flags
+		if (filter_hidden_entries(ls))
+			continue ;
 		new = ls_save_path(ls, &dir_content_list, dir->fullpath, ls->de->d_name);
 		set_stat(ls, new);
 	}

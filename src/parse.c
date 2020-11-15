@@ -23,6 +23,8 @@ void	filter_options(t_ls *ls, int flag)
 	flag == OPT_U && (ls->options & OPT_C) ? ls->options ^= OPT_C : 0;
 	flag == OPT_D && (ls->options & OPT_CAPR) ? ls->options ^= OPT_CAPR : 0;
 	flag == OPT_F ? ls->options |= OPT_A : 0;
+	flag == OPT_A && (ls->options & OPT_CAPA) ? ls->options ^= OPT_CAPA : 0;
+	flag == OPT_CAPA && (ls->options & OPT_A) ? ls->options ^= OPT_A : 0;
 }
 
 

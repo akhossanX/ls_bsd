@@ -126,6 +126,7 @@ long			ft_abs(long nb);
 double			ft_sqrt(int n);
 int				ft_pow(int x, unsigned int y);
 int				ft_round(double n);
+int				nb_length(long long n);
 
 /*
 **	Generic Linked List

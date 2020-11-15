@@ -106,12 +106,24 @@ void    print_date(t_ls *ls, t_path *lst)
     char    *datestr;
     int     is_modtime;
 
+	#ifdef __APPLE__
     tim = lst->st->st_mtimespec.tv_sec;
+	#else
+	tim = lst->st->st_mtim.tv_sec;
+	#endif
     is_modtime = 1;
     if ((ls->options & OPT_C) && !(is_modtime = 0))
+		#ifdef __APPLE__
         tim = lst->st->st_ctimespec.tv_sec;
+		#else
+		tim = lst->st->st_ctim.tv_sec;
+		#endif
     else if ((ls->options & OPT_U) && !(is_modtime = 0))
+		#ifdef __APPLE__
         tim = lst->st->st_atimespec.tv_sec;
+		#else
+		tim = lst->st->st_atim.tv_sec;
+		#endif
     errno = 0;
     datestr = ctime(&tim);
     if (errno && (ls->err = errno))
@@ -151,7 +163,8 @@ void    long_display(t_ls *ls, t_path *lst, int dir_or_files)
         ft_printf("%c", (filetype = get_filetype(lst->st->st_mode & S_IFMT)));
 		ft_printf("%s  ", get_permissions(lst->st->st_mode));
         ft_printf("%*lld ", ls->display.lnk_length , lst->st->st_nlink);
-        ft_printf("%-*s  ", ls->display.owner_length, lst->usrname);
+        if ((ls->options & OPT_G) == 0)
+            ft_printf("%-*s  ", ls->display.owner_length, lst->usrname);
         ft_printf("%-*s  ", ls->display.grp_length, lst->grpname);
         if ((lst->st->st_mode & S_IFMT) == S_IFBLK 
             || (lst->st->st_mode & S_IFMT) == S_IFCHR)
@@ -178,7 +191,7 @@ void    block_display(t_ls *ls, t_path *lst)
 
 void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
 {
-    if (ls->options & OPT_L)
+    if ((ls->options & OPT_L) || (ls->options & OPT_G))
         long_display(ls, lst, dir_or_files);
     else if (ls->options & OPT_CAPC)
         block_display(ls, lst);
