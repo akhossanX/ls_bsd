@@ -17,5 +17,6 @@ const t_option	g_options[NOPTIONS] =
 	{'f', OPT_F},
 	{'c', OPT_C},
 	{'C', OPT_CAPC},
-	{'S', OPT_CAPS}
+	{'S', OPT_CAPS},
+	{'@', OPT_ATTR}
 };

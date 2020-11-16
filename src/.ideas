@@ -85,8 +85,20 @@ Remaining tasks:
 
 
 
-        ACL attributes
-        Block format display
+        ACL attributes                       done
+
+
+
+        Block format display        
+
+            + Determine the maximum number of columns we can display
+                - 
+
+
+
+            + Determine the number of lines in which we can display        
+
+
         Colour flag (-G)
             
 

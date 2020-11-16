@@ -12,6 +12,18 @@
 
 #include "ft_ls.h"
 
+void	set_block_data(t_ls *ls, t_path *entry, int *max)
+{
+	int	len;
+
+	if (ls->options & OPT_CAPC)
+	{
+		len = ft_strlen(entry->name);
+		if (*max < len)
+			*max = len;
+	}
+}
+
 void	add_entry_by_type(t_ls *ls, t_path *entry)
 {
 	t_path	**target;
@@ -19,6 +31,8 @@ void	add_entry_by_type(t_ls *ls, t_path *entry)
 	target = &ls->files;
 	if ((ls->options & OPT_D) == 0 && (entry->st->st_mode & S_IFMT) == S_IFDIR)
 			target = &ls->dirs;
+	if (target == &ls->files)
+		set_block_data(ls, entry, &ls->display.max_files_names);
 	ls_path_append(target, entry);
 }
 
@@ -121,6 +135,7 @@ void	set_display_data(t_ls *ls, t_path *entry)
 
 int		set_stat(t_ls *ls, t_path *entry)
 {
+
 	entry->st = new_stat(ls);
 	if (lstat(entry->fullpath, entry->st) == -1)
 	{

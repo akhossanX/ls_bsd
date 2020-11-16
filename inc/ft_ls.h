@@ -18,6 +18,9 @@
 # include <dirent.h>
 # include <sys/stat.h>
 # include <sys/types.h>
+# include <sys/xattr.h>
+# include <sys/acl.h>
+# include <sys/ioctl.h>
 # include <errno.h>
 # include <limits.h>
 # include <time.h>
@@ -25,7 +28,7 @@
 # include <pwd.h>
 # include <assert.h>
 
-# define NOPTIONS		15
+# define NOPTIONS		16
 
 # define LS_SUCCESS		0
 # define LS_MINOR_ERROR	1
@@ -65,6 +68,7 @@
 
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
+# define OPT_ATTR	(1 << 15)	/* Display extended attributes with (-l) if any */
 
 
 
@@ -85,7 +89,7 @@ typedef enum	e_sort
 typedef struct		s_option
 {
 	char	option;
-	short	code;
+	int		code;
 }					t_option;
 
 extern const t_option	g_options[];
@@ -101,6 +105,8 @@ typedef struct		s_path
 	char			*grpname;
 	int32_t			major;
 	int32_t			minor;
+	char			*xattr;
+	ssize_t			xattrsz;
 	struct s_path	*next;
 }					t_path;
 
@@ -111,6 +117,8 @@ typedef struct		s_display
 	int				lnk_length;
 	int				owner_length;
 	int				grp_length;
+	int				max_files_names;
+	int				max_dirs_names;
 	int				blocks;
 	int				size_length;
 	int				has_cbdev;
@@ -147,6 +155,8 @@ int		set_stat(t_ls *ls, t_path *target_list);
 
 t_path	*ls_sort(t_path *target, t_sort sort_type, int order);
 void	ls_display(t_ls *ls, t_path *list, int dir_or_files);
+void	set_block_data(t_ls *ls, t_path *entry, int *max);
+
 
 void	process_arguments(t_ls *ls);
 
@@ -166,6 +176,7 @@ char	*get_full_path(const char *parent, const char *entry);
 
 
 void	print_all(t_ls *ls);
+void	print_paths(t_path *lst);
 
 
 

@@ -149,33 +149,105 @@ void    print_entry(t_ls *ls, t_path *entry, char filetype)
     write(1, "\n", 1);
 }
 
-void    long_display(t_ls *ls, t_path *lst, int dir_or_files)
+char    get_xattr_or_acl(t_ls *ls, t_path *path)
+{
+    ssize_t     size;
+    acl_t       acl;
+    acl_entry_t acl_entry;
+
+    size = (path->xattrsz = listxattr(path->fullpath, NULL, 0, XATTR_NOFOLLOW));
+    if (size != 0 && (ls->options & OPT_ATTR))
+    {
+        if (!(path->xattr = ft_strnew(size)) && (ls->err = errno))
+            ls_handle_error(ls, path->name, get_error_level(ls->err));
+        listxattr(path->fullpath, path->xattr, size, XATTR_NOFOLLOW);
+    }
+    acl = acl_get_file(path->fullpath, ACL_TYPE_EXTENDED);
+    if (acl && acl_get_entry(acl, ACL_FIRST_ENTRY, &acl_entry) == -1)
+    {
+        acl_free(acl);
+        acl = NULL;
+        ls_handle_error(ls, path->name, LS_MINOR_ERROR);
+    }
+    if (size > 0)
+        return ('@');
+    if (acl != NULL)
+        return ('+');
+    return (' ');
+}
+
+void    print_xattr(t_ls *ls, t_path *path)
+{
+    ssize_t size;
+    char    *ptr;
+
+    if (path->xattr)
+    {
+        ptr = path->xattr;
+        while ((ptr - path->xattr) < path->xattrsz - 1)
+        {
+            errno = 0;
+            size = getxattr(path->fullpath, ptr, NULL, 0, 0, XATTR_NOFOLLOW);
+            if (size == -1)
+            {
+                ls->err = errno;
+                ls_handle_error(ls, path->name, get_error_level(ls->err));
+            }
+            write(1, "\t", 1);
+            write(1, ptr, ft_strlen(ptr));
+            write(1, "\t", 1);
+            ft_printf("%*d \n", ls->display.size_length, size);
+            ptr = ft_strchr(ptr, 0) + 1;
+        }
+    }
+}
+// "kdkfj\0kdfjakjf\0kdjfa;\0"
+
+void    long_display(t_ls *ls, t_path *path, int dir_or_files)
 {
     int     onlysize_len;
     char    filetype;
 
     onlysize_len = ls->display.has_cbdev ? ls->display.size_length * 2 + 2 : 
             ls->display.size_length;
-    if (dir_or_files == DIRECTORY)
-        ft_printf("total %d\n", ls->display.blocks);
-    while (lst != NULL)
+    dir_or_files == DIRECTORY ? ft_printf("total %d\n", ls->display.blocks) : 0;
+    while (path != NULL)
     {
-        ft_printf("%c", (filetype = get_filetype(lst->st->st_mode & S_IFMT)));
-		ft_printf("%s  ", get_permissions(lst->st->st_mode));
-        ft_printf("%*lld ", ls->display.lnk_length , lst->st->st_nlink);
+        ft_printf("%c", (filetype = get_filetype(path->st->st_mode & S_IFMT)));
+		ft_printf("%s", get_permissions(path->st->st_mode));
+        ft_printf("%c ", get_xattr_or_acl(ls, path));
+        ft_printf("%*lld ", ls->display.lnk_length , path->st->st_nlink);
         if ((ls->options & OPT_G) == 0)
-            ft_printf("%-*s  ", ls->display.owner_length, lst->usrname);
-        ft_printf("%-*s  ", ls->display.grp_length, lst->grpname);
-        if ((lst->st->st_mode & S_IFMT) == S_IFBLK 
-            || (lst->st->st_mode & S_IFMT) == S_IFCHR)
-            ft_printf("%*d, %*d ", ls->display.size_length, lst->major,
-                ls->display.size_length, lst->minor);
+            ft_printf("%-*s  ", ls->display.owner_length, path->usrname);
+        ft_printf("%-*s  ", ls->display.grp_length, path->grpname);
+        if ((path->st->st_mode & S_IFMT) == S_IFBLK 
+            || (path->st->st_mode & S_IFMT) == S_IFCHR)
+            ft_printf("%*d, %*d ", ls->display.size_length, path->major,
+                ls->display.size_length, path->minor);
         else
-            ft_printf("%*d ", onlysize_len, lst->st->st_size);
-        print_date(ls, lst);
-        print_entry(ls, lst, filetype);
-        lst = lst->next;
+            ft_printf("%*d ", onlysize_len, path->st->st_size);
+        print_date(ls, path);
+        print_entry(ls, path, filetype);
+        ls->options & OPT_ATTR ? print_xattr(ls, path) : 0;
+        path = path->next;
     }
+}
+
+
+/*
+    Block Format Dispaly
+*/
+unsigned short  get_wincolumns(t_ls *ls)
+{
+    struct winsize  w;
+
+    errno = 0;
+    if (ioctl(1, TIOCGWINSZ, &w) == -1)
+    {
+        ls->err = errno;
+        ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+    }
+    return (w.ws_col);
 }
 
 /*
@@ -183,18 +255,39 @@ void    long_display(t_ls *ls, t_path *lst, int dir_or_files)
 **  Dispaly the directory entries in block format
 */
 
-void    block_display(t_ls *ls, t_path *lst)
+int     get_nrecords(unsigned short wincolumns, int max_names_len)
 {
-    (void)ls, (void)lst;
+    int     nrecords;
+
+    nrecords = 1;
+    while (nrecords * max_names_len + nrecords < wincolumns)
+        nrecords++;
+    return (--nrecords);
 }
 
+void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
+{
+    unsigned short  wincolumns;
+    int             nrecords;
+    int             max;
+
+    (void)lst;
+    wincolumns = get_wincolumns(ls);
+    ft_printf("winsize: %d\n", wincolumns);
+    max = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names : 
+        ls->display.max_files_names;
+    nrecords = get_nrecords(wincolumns, max);
+    ft_printf("nrecords: %d\n", nrecords);
+
+}
+/********************************************************************************/
 
 void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
 {
     if ((ls->options & OPT_L) || (ls->options & OPT_G))
         long_display(ls, lst, dir_or_files);
     else if (ls->options & OPT_CAPC)
-        block_display(ls, lst);
+        block_display(ls, lst, dir_or_files);
     else
         one_column_display(lst);
 }
