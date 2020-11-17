@@ -91,12 +91,21 @@ Remaining tasks:
 
         Block format display        
 
-            + Determine the maximum number of columns we can display
-                - 
+            + Determine the maximum number of records we can display in one line (maxrecords)
 
 
-
-            + Determine the number of lines in which we can display        
+            + Determine the effective number cols and rows in which we can display  
+            
+                if number of entries is less than, or equal to maxrecords   (entries <= maxrecords) :
+                    Display all in one line
+                else :
+                    initialize cols,rows = 1
+                    as long as cols * rows < entries and cols < maxrecords:
+                        increment rows by 1 (rows++)
+                        cols = ceil (entries / rows)
+                        while cols > maxrecords:
+                            rows ++
+                            cols = ceil (entries / rows)
 
 
         Colour flag (-G)

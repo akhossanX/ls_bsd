@@ -28,6 +28,7 @@
 # include <pwd.h>
 # include <assert.h>
 
+
 # define NOPTIONS		16
 
 # define LS_SUCCESS		0
@@ -119,6 +120,8 @@ typedef struct		s_display
 	int				grp_length;
 	int				max_files_names;
 	int				max_dirs_names;
+	int				total_files;
+	int				total_dirs;
 	int				blocks;
 	int				size_length;
 	int				has_cbdev;
@@ -155,7 +158,7 @@ int		set_stat(t_ls *ls, t_path *target_list);
 
 t_path	*ls_sort(t_path *target, t_sort sort_type, int order);
 void	ls_display(t_ls *ls, t_path *list, int dir_or_files);
-void	set_block_data(t_ls *ls, t_path *entry, int *max);
+void	set_block_data(t_ls *ls, t_path *entry, int *max, int *total_entries);
 
 
 void	process_arguments(t_ls *ls);

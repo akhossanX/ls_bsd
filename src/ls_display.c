@@ -250,35 +250,45 @@ unsigned short  get_wincolumns(t_ls *ls)
     return (w.ws_col);
 }
 
-/*
-**  Bonus
-**  Dispaly the directory entries in block format
-*/
-
-int     get_nrecords(unsigned short wincolumns, int max_names_len)
-{
-    int     nrecords;
-
-    nrecords = 1;
-    while (nrecords * max_names_len + nrecords < wincolumns)
-        nrecords++;
-    return (--nrecords);
-}
-
 void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
 {
     unsigned short  wincolumns;
-    int             nrecords;
-    int             max;
+    int             maxlength;
+    int             i;// number of columns
+    int             rows;
+    int             entries;
+    int             cnt;
 
-    (void)lst;
     wincolumns = get_wincolumns(ls);
-    ft_printf("winsize: %d\n", wincolumns);
-    max = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names : 
+    maxlength = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names :
         ls->display.max_files_names;
-    nrecords = get_nrecords(wincolumns, max);
-    ft_printf("nrecords: %d\n", nrecords);
-
+    entries = (dir_or_files == DIRECTORY) ? ls->display.total_dirs :
+        ls->display.total_files;
+    i = wincolumns / (maxlength + 1);
+    rows = entries / i + (entries % i != 0);
+    cnt = 1;
+    while (lst)
+    {
+        i = 0;
+        ft_printf("\033[s");
+        while (lst && i < rows)
+        {
+            ft_printf("%s", lst->name);
+            if (cnt + rows > entries)
+                ft_printf("\n");
+            lst = lst->next;
+            lst ? ft_printf("\033[u") : 0;
+            i++;
+            cnt++;
+            lst ? ft_printf("\033[%dB", i) : 0;
+        }
+        // ft_dprintf(2, "i: %d\n", i);
+        lst ? ft_printf("\033[u") : 0;
+        lst ? ft_printf("\033[%dC", maxlength + 1) : 0;
+    }
+    // if (rows > 1)
+        // ft_printf("\033[%dB",  (entries % i));
+    // ft_printf("\n");
 }
 /********************************************************************************/
 
@@ -291,3 +301,16 @@ void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
     else
         one_column_display(lst);
 }
+
+    // tmp = max;
+    // max = get_maxrecords(wincolumns, max);
+    // // ft_printf("nrecords: %d, ", max);
+    // // ft_printf("entries: %d, ", entries);
+    // if (entries <= max)
+    //     disp_one_line(lst, tmp);//ft_printf("display in one line ^_^\n");
+    // else
+    // {
+    //     get_cols_rows(max, entries, &cols, &rows);
+    //     // ft_printf("(%d, %d)\n", rows, cols);
+    //     disp_in_blocks(ls, lst, rows, cols, tmp);
+    // }

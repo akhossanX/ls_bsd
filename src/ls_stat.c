@@ -12,7 +12,7 @@
 
 #include "ft_ls.h"
 
-void	set_block_data(t_ls *ls, t_path *entry, int *max)
+void	set_block_data(t_ls *ls, t_path *entry, int *max, int *total_entries)
 {
 	int	len;
 
@@ -21,6 +21,7 @@ void	set_block_data(t_ls *ls, t_path *entry, int *max)
 		len = ft_strlen(entry->name);
 		if (*max < len)
 			*max = len;
+		*total_entries += 1;
 	}
 }
 
@@ -32,7 +33,7 @@ void	add_entry_by_type(t_ls *ls, t_path *entry)
 	if ((ls->options & OPT_D) == 0 && (entry->st->st_mode & S_IFMT) == S_IFDIR)
 			target = &ls->dirs;
 	if (target == &ls->files)
-		set_block_data(ls, entry, &ls->display.max_files_names);
+		set_block_data(ls, entry, &ls->display.max_files_names, &ls->display.total_files);
 	ls_path_append(target, entry);
 }
 

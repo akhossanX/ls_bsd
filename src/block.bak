@@ -1,0 +1,100 @@
+/*
+**  Bonus
+**  Dispaly the directory entries in block format
+*/
+
+int     get_maxrecords(unsigned short wincolumns, int max_names_len)
+{
+    int     nrecords;
+
+    nrecords = 1;
+    while (nrecords * max_names_len + nrecords < wincolumns)
+        nrecords++;
+    return (--nrecords);
+}
+
+int     ft_ceil(double nb)
+{
+    if (nb > (double)((int)nb))
+        return ((int)(nb + 1));
+    return ((int)nb);
+}
+
+void    get_cols_rows(int max, int nentries, int *cols, int *rows)
+{
+    *cols = 1;
+    *rows = 1;
+    while (*cols * *rows < nentries && *cols < max)
+    {
+        (*rows)++;
+        *cols = ft_ceil((double)nentries / *rows);
+        // ft_printf("------{%d, %d}\n", *rows, *cols);
+        while (*cols > max)
+        {
+            (*rows)++;
+            *cols = ft_ceil((double)nentries / *rows);
+            // ft_printf("{%d, %d}\n", *rows, *cols);
+        }
+    } 
+}
+
+void    disp_in_blocks(t_ls *ls, t_path *lst, int rows, int cols, int max)
+{
+    char  ***arr;
+    int   i;
+    int   j;
+
+    errno = 0;
+    if (!(arr = (char ***)ft_memalloc(sizeof(char **) * rows)))
+    {
+        ls->err = errno;
+        ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+    }
+    i = 0;
+    while (i < rows)
+    {
+        if (!(arr[i] = (char **)ft_memalloc(sizeof(char *) * cols)))
+        {
+            ls->err = errno;
+            ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+        }
+        i++;
+    }
+    i = 0;
+    while (lst && i < cols)
+    {
+        j = 0;
+        while (lst && j < rows)
+        {
+            arr[j][i] = lst->name;
+            j++;
+            lst = lst->next;
+        }
+        i++;
+    }
+    i = 0;
+    while (i < rows)
+    {
+        j = 0;
+        while (j < cols && arr[i][j] != NULL)
+        {
+            ft_printf("%-*s", max, arr[i][j]);
+            write(1, j == cols - 1 ? "" : " ", 1);
+            j++;
+        }
+        write(1, "\n", 1);
+        free(arr[i]);
+        i++;
+    }
+    free(arr);
+}
+
+void    disp_one_line(t_path *lst, int width)
+{
+    while (lst)
+    {
+        ft_printf("%-*s", width, lst->name);
+        lst = lst->next;
+        ft_printf(lst ? " " : "\n");
+    }
+}
