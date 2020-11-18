@@ -242,11 +242,13 @@ unsigned short  get_wincolumns(t_ls *ls)
     struct winsize  w;
 
     errno = 0;
-    if (ioctl(1, TIOCGWINSZ, &w) == -1)
+    ls->fd = 1;//open("/dev/ttys001", O_WRONLY);
+    if (ioctl(ls->fd, TIOCGWINSZ, &w) == -1)
     {
         ls->err = errno;
         ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
     }
+    // ft_dprintf(2, "width: %d, heigth: %d\n", w.ws_col, w.ws_row);
     return (w.ws_col);
 }
 
@@ -258,33 +260,35 @@ void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
     int             rows;
     int             entries;
 
-    wincolumns = get_wincolumns(ls);
+    wincolumns = get_wincolumns(ls); // Move this call to set_block_data
     maxlength = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names :
         ls->display.max_files_names;
     entries = (dir_or_files == DIRECTORY) ? ls->display.total_dirs :
         ls->display.total_files;
     i = wincolumns / (maxlength + 1);
     rows = entries / i + (entries % i != 0);
+    // ft_dprintf(2, "win: %d, rows: %d\n", wincolumns, rows);
+    entries = 0;
     while(lst)
     {
         i = 0;
-        ft_printf("\033[s");
+        // ft_dprintf(ls->fd, "\033[s");
         while(i++ < rows)
         {
-            ft_printf("%s\n", lst->name);
+            if (entries)
+                ft_dprintf(ls->fd, "\033[%dC", (maxlength + 1) * entries);
+            ft_dprintf(ls->fd, "%s\n", lst->name);
             lst = lst->next;
             if(!lst)
             {
-                printf("\033[%dB", (rows - i - 1));
-                sleep(2);
+                i < rows ? ft_dprintf(ls->fd, "\033[%dB", (rows - i)) : 0;
+                // sleep(2);
                 return ;
             }
-            ft_printf("\033[u");
-            if (i < rows)
-                ft_printf("\033[%dB", i);
-            sleep(1);
         }
-        ft_printf("\033[%dC", maxlength + 1);
+        entries++;
+        ft_dprintf(ls->fd, "\033[%dA", i - 1);
+        // ft_dprintf(ls->fd, "\033[%dC", (maxlength + 1) * entries);
     }
 }
 

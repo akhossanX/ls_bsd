@@ -27,6 +27,7 @@
 # include <grp.h>
 # include <pwd.h>
 # include <assert.h>
+# include <fcntl.h>
 
 
 # define NOPTIONS		16
@@ -137,6 +138,7 @@ typedef struct		s_ls
 	int				optend;
 	t_sort			sort_type;
 	t_display		display;
+	int				fd; // To Remove later on
 	struct dirent	*de;
 	DIR				*dp;
 	const char		*prog;
