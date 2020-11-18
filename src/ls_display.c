@@ -257,7 +257,6 @@ void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
     int             i;// number of columns
     int             rows;
     int             entries;
-    int             cnt;
 
     wincolumns = get_wincolumns(ls);
     maxlength = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names :
@@ -266,30 +265,30 @@ void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
         ls->display.total_files;
     i = wincolumns / (maxlength + 1);
     rows = entries / i + (entries % i != 0);
-    cnt = 1;
-    while (lst)
+    while(lst)
     {
         i = 0;
         ft_printf("\033[s");
-        while (lst && i < rows)
+        while(i++ < rows)
         {
-            ft_printf("%s", lst->name);
-            if (cnt + rows > entries)
-                ft_printf("\n");
+            ft_printf("%s\n", lst->name);
             lst = lst->next;
-            lst ? ft_printf("\033[u") : 0;
-            i++;
-            cnt++;
-            lst ? ft_printf("\033[%dB", i) : 0;
+            if(!lst)
+            {
+                printf("\033[%dB", (rows - i - 1));
+                sleep(2);
+                return ;
+            }
+            ft_printf("\033[u");
+            if (i < rows)
+                ft_printf("\033[%dB", i);
+            sleep(1);
         }
-        // ft_dprintf(2, "i: %d\n", i);
-        lst ? ft_printf("\033[u") : 0;
-        lst ? ft_printf("\033[%dC", maxlength + 1) : 0;
+        ft_printf("\033[%dC", maxlength + 1);
     }
-    // if (rows > 1)
-        // ft_printf("\033[%dB",  (entries % i));
-    // ft_printf("\n");
 }
+
+
 /********************************************************************************/
 
 void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
