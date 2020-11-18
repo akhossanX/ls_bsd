@@ -78,15 +78,24 @@ t_path	*find_middle_list(t_path *lst)
 	return (middle);
 }
 
+void	add_to_sorted(t_path **sorted, t_path *node, t_path **last)
+{
+	if (*sorted == NULL)
+		*sorted = node;
+	else
+		(*last)->next = node;
+	*last = node;
+}
+
 t_path	*merge_list(t_path *left, t_path *rigth, t_cmp cmp_func, t_sort sort_type, int reverse)
 {
-	t_path	*m;
+	t_path	*sorted;
 	t_path	*last;
 	int64_t	test;
 
 	if (left == NULL || rigth == NULL)
 		return (!left ? rigth : left);
-	m = NULL;
+	sorted = NULL;
 	last = NULL;
 	while (left && rigth)
 	{
@@ -94,25 +103,17 @@ t_path	*merge_list(t_path *left, t_path *rigth, t_cmp cmp_func, t_sort sort_type
 		reverse ? test *= -1 : 0;
 		if (test > 0)
 		{
-			if (m == NULL)
-				m = left;
-			else
-				last->next = left;
-			last = left;
+			add_to_sorted(&sorted, left, &last);
 			left = left->next;
 		}
 		else
 		{
-			if (m == NULL)
-				m = rigth;
-			else
-				last->next = rigth;
-			last = rigth;
+			add_to_sorted(&sorted, rigth, &last);
 			rigth = rigth->next;
 		}
 	}
 	last->next = (left == NULL) ? rigth : left;
-	return (m);
+	return (sorted);
 }
 
 t_path	*merge_sort(t_path *lst, t_cmp cmp_func, t_sort sort_type, int reverse)

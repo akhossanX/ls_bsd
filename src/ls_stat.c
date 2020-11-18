@@ -12,6 +12,20 @@
 
 #include "ft_ls.h"
 
+void	set_wincolumns(t_ls *ls)
+{
+    struct winsize  w;
+
+    errno = 0;
+    ls->fd = 1;//open("/dev/ttys001", O_WRONLY);
+    if (ioctl(ls->fd, TIOCGWINSZ, &w) == -1)
+    {
+        ls->err = errno;
+        ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+    }
+	ls->display.wincolumns = w.ws_col;
+}
+
 void	set_block_data(t_ls *ls, t_path *entry, int *max, int *total_entries)
 {
 	int	len;
@@ -22,6 +36,7 @@ void	set_block_data(t_ls *ls, t_path *entry, int *max, int *total_entries)
 		if (*max < len)
 			*max = len;
 		*total_entries += 1;
+    	set_wincolumns(ls);
 	}
 }
 

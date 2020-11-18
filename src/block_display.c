@@ -1,24 +1,10 @@
+
+#include "ft_ls.h"
+
 /*
 **  Bonus
 **  Dispaly the directory entries in block format
 */
-
-int     get_maxrecords(unsigned short wincolumns, int max_names_len)
-{
-    int     nrecords;
-
-    nrecords = 1;
-    while (nrecords * max_names_len + nrecords < wincolumns)
-        nrecords++;
-    return (--nrecords);
-}
-
-int     ft_ceil(double nb)
-{
-    if (nb > (double)((int)nb))
-        return ((int)(nb + 1));
-    return ((int)nb);
-}
 
 void    get_cols_rows(int max, int nentries, int *cols, int *rows)
 {
@@ -28,21 +14,18 @@ void    get_cols_rows(int max, int nentries, int *cols, int *rows)
     {
         (*rows)++;
         *cols = ft_ceil((double)nentries / *rows);
-        // ft_printf("------{%d, %d}\n", *rows, *cols);
         while (*cols > max)
         {
             (*rows)++;
             *cols = ft_ceil((double)nentries / *rows);
-            // ft_printf("{%d, %d}\n", *rows, *cols);
         }
     } 
 }
 
-void    disp_in_blocks(t_ls *ls, t_path *lst, int rows, int cols, int max)
+char    ***new_block_array(t_ls *ls, int rows, int cols)
 {
-    char  ***arr;
-    int   i;
-    int   j;
+    char    ***arr;
+    int     i;
 
     errno = 0;
     if (!(arr = (char ***)ft_memalloc(sizeof(char **) * rows)))
@@ -60,6 +43,14 @@ void    disp_in_blocks(t_ls *ls, t_path *lst, int rows, int cols, int max)
         }
         i++;
     }
+    return (arr);
+}
+
+void    fill_block_array(t_path *lst, char ***arr, int rows, int cols)
+{
+    int i;
+    int j;
+
     i = 0;
     while (lst && i < cols)
     {
@@ -72,13 +63,23 @@ void    disp_in_blocks(t_ls *ls, t_path *lst, int rows, int cols, int max)
         }
         i++;
     }
+}
+
+void    disp_in_blocks(t_ls *ls, t_path *lst, int rows, int cols, int width)
+{
+    char  ***arr;
+    int   i;
+    int   j;
+
+    arr = new_block_array(ls, rows, cols);
+    fill_block_array(lst, arr, rows, cols);
     i = 0;
     while (i < rows)
     {
         j = 0;
         while (j < cols && arr[i][j] != NULL)
         {
-            ft_printf("%-*s", max, arr[i][j]);
+            ft_printf("%-*s", width, arr[i][j]);
             write(1, j == cols - 1 ? "" : " ", 1);
             j++;
         }
@@ -98,3 +99,27 @@ void    disp_one_line(t_path *lst, int width)
         ft_printf(lst ? " " : "\n");
     }
 }
+
+
+void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
+{
+    int     max;
+    int     maxlength;
+    int     entries;
+    int     cols;
+    int     rows;
+
+    maxlength = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names :
+        ls->display.max_files_names;
+    entries = (dir_or_files == DIRECTORY) ? ls->display.total_dirs :
+        ls->display.total_files;
+    max = ls->display.wincolumns / (maxlength + 1);
+    if (entries <= max)
+        disp_one_line(lst, maxlength);
+    else
+    {
+        get_cols_rows(max, entries, &cols, &rows);
+        disp_in_blocks(ls, lst, rows, cols, maxlength);
+    }
+}
+

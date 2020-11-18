@@ -31,8 +31,8 @@ SRCS = \
 		ls_display.c \
 		ls_files.c \
 		ls_dirs.c \
-		#terminate.c \
-		files.c \
+		block_display.c
+
 
 
 OBJS = $(addprefix $(OBJDIR), $(SRCS:.c=.o))

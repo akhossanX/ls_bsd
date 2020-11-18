@@ -155,8 +155,9 @@ char    get_xattr_or_acl(t_ls *ls, t_path *path)
     acl_t       acl;
     acl_entry_t acl_entry;
 
+    errno = 0;
     size = (path->xattrsz = listxattr(path->fullpath, NULL, 0, XATTR_NOFOLLOW));
-    if (size != 0 && (ls->options & OPT_ATTR))
+    if (size > 0 && (ls->options & OPT_ATTR))
     {
         if (!(path->xattr = ft_strnew(size)) && (ls->err = errno))
             ls_handle_error(ls, path->name, get_error_level(ls->err));
@@ -201,7 +202,6 @@ void    print_xattr(t_ls *ls, t_path *path)
         }
     }
 }
-// "kdkfj\0kdfjakjf\0kdjfa;\0"
 
 void    long_display(t_ls *ls, t_path *path, int dir_or_files)
 {
@@ -233,68 +233,6 @@ void    long_display(t_ls *ls, t_path *path, int dir_or_files)
     }
 }
 
-
-/*
-    Block Format Dispaly
-*/
-unsigned short  get_wincolumns(t_ls *ls)
-{
-    struct winsize  w;
-
-    errno = 0;
-    ls->fd = 1;//open("/dev/ttys001", O_WRONLY);
-    if (ioctl(ls->fd, TIOCGWINSZ, &w) == -1)
-    {
-        ls->err = errno;
-        ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
-    }
-    // ft_dprintf(2, "width: %d, heigth: %d\n", w.ws_col, w.ws_row);
-    return (w.ws_col);
-}
-
-void    block_display(t_ls *ls, t_path *lst, int dir_or_files)
-{
-    unsigned short  wincolumns;
-    int             maxlength;
-    int             i;// number of columns
-    int             rows;
-    int             entries;
-
-    wincolumns = get_wincolumns(ls); // Move this call to set_block_data
-    maxlength = (dir_or_files == DIRECTORY) ? ls->display.max_dirs_names :
-        ls->display.max_files_names;
-    entries = (dir_or_files == DIRECTORY) ? ls->display.total_dirs :
-        ls->display.total_files;
-    i = wincolumns / (maxlength + 1);
-    rows = entries / i + (entries % i != 0);
-    // ft_dprintf(2, "win: %d, rows: %d\n", wincolumns, rows);
-    entries = 0;
-    while(lst)
-    {
-        i = 0;
-        // ft_dprintf(ls->fd, "\033[s");
-        while(i++ < rows)
-        {
-            if (entries)
-                ft_dprintf(ls->fd, "\033[%dC", (maxlength + 1) * entries);
-            ft_dprintf(ls->fd, "%s\n", lst->name);
-            lst = lst->next;
-            if(!lst)
-            {
-                i < rows ? ft_dprintf(ls->fd, "\033[%dB", (rows - i)) : 0;
-                // sleep(2);
-                return ;
-            }
-        }
-        entries++;
-        ft_dprintf(ls->fd, "\033[%dA", i - 1);
-        // ft_dprintf(ls->fd, "\033[%dC", (maxlength + 1) * entries);
-    }
-}
-
-
-/********************************************************************************/
-
 void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
 {
     if ((ls->options & OPT_L) || (ls->options & OPT_G))
@@ -304,16 +242,3 @@ void    ls_display(t_ls *ls, t_path *lst, int dir_or_files)
     else
         one_column_display(lst);
 }
-
-    // tmp = max;
-    // max = get_maxrecords(wincolumns, max);
-    // // ft_printf("nrecords: %d, ", max);
-    // // ft_printf("entries: %d, ", entries);
-    // if (entries <= max)
-    //     disp_one_line(lst, tmp);//ft_printf("display in one line ^_^\n");
-    // else
-    // {
-    //     get_cols_rows(max, entries, &cols, &rows);
-    //     // ft_printf("(%d, %d)\n", rows, cols);
-    //     disp_in_blocks(ls, lst, rows, cols, tmp);
-    // }
