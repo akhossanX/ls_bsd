@@ -6,26 +6,11 @@
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/07 13:23:53 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/09 10:22:53 by akhossan         ###   ########.fr       */
+/*   Updated: 2020/11/12 12:02:26 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ls.h"
-
-void	ls_process_dirs(t_ls *ls, t_path **dirs)
-{
-	if (ls->sort_type == NO_SORT)
-	{
-		if (ls->options & OPT_L)
-			set_stat(ls, *dirs);
-	}
-	else
-	{
-		if ((ls->options & OPT_L) || ls->sort_type != ASCII_SORT)
-			set_stat(ls, *dirs);
-		ls_sort(ls, dirs);
-	}
-}
 
 /*
 **	Closes the directory stream if it is already opened
@@ -39,22 +24,47 @@ void	ls_closedir(DIR **dirp)
 	*dirp = NULL;
 }
 
+int		filter_hidden_entries(t_ls *ls)
+{
+	if (ls->de->d_name[0] == '.')
+	{
+		if (ls->options & OPT_CAPA)
+		{
+			if (ft_strequ(ls->de->d_name, ".") || 
+				ft_strequ(ls->de->d_name, ".."))
+				return (1);
+		}
+		else if (!(ls->options & OPT_A))
+			return (1);
+	}
+	return (0);
+}
+
 /*
 **	Reads the content of a directory stream and returns its content
-**	On error it returns NULL and sets ls->errcode according to errno
+**	On error it returns NULL and sets ls->err according to errno
 */
 
-t_path	*ls_readdir(t_ls *ls, const char *dir)
+t_path	*ls_readdir(t_ls *ls, t_path *dir)
 {
 	t_path	*dir_content_list;
+	t_path	*new;
 
+	ft_bzero((void *)&ls->display, sizeof(t_display));// For each dir we initialize all display data to 0
 	dir_content_list = NULL;
 	while ((ls->de = readdir(ls->dp)) != NULL)
-		ls_save_path(ls, &dir_content_list, dir, ls->de->d_name);
+	{
+		if (filter_hidden_entries(ls))
+			continue ;
+		new = ls_save_path(ls, &dir_content_list, dir->fullpath, ls->de->d_name);
+		set_stat(ls, new);
+		set_block_data(ls, new, &ls->display.max_dirs_names, &ls->display.total_dirs);
+	}
 	if (ls->de == NULL && errno)
 	{
-		ls->errcode = errno;
+		ls->err = errno;
 		ls_free_paths(dir_content_list);
+		ls_handle_error(ls, dir->name, get_error_level(ls->err));
 		return (NULL);
 	}
 	ls_closedir(&ls->dp);
@@ -64,8 +74,8 @@ t_path	*ls_readdir(t_ls *ls, const char *dir)
 /*
 **	Opens a directory streams, reads its content and stores it
 **	in a list of paths (directory entries)
-**	On error it returns NULL and sets ls->errcode appropriately
-**	this ls->errcode is fetched later, based on the level of danger,
+**	On error it returns NULL and sets ls->err appropriately
+**	this ls->err is fetched later, based on the level of danger,
 **	we decide what to do accordingly.
 */
 
@@ -76,63 +86,43 @@ t_path  *ls_get_dir_content(t_ls *ls, t_path *dir)
     errno = 0;
     if ((ls->dp = opendir(dir->fullpath)))
     {
-		content = ls_readdir(ls, dir->fullpath);
+		content = ls_readdir(ls, dir);
 		return (content);
     }
-	ls->errcode = errno;
-	if (errno != ENOTDIR)
-		ls_handle_error(ls, dir->name, get_error_level(ls->errcode));
-	ls->errcode = 0;
+	ls->err = errno;
+	ls_handle_error(ls, dir->name, get_error_level(ls->err));
     return (NULL);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int		ls_isdir(t_path *path)
+{
+	return ((path->st->st_mode & S_IFMT) == S_IFDIR);
+}
 
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse)
 {
-	t_path	*dir_content;
+	t_path	*content;
 
-	if (dirs == NULL)
-		return ;
 	while (dirs != NULL)
 	{
-		if (cli_or_recurse == RECURSE && 
-				(ft_strequ(dirs->name, ".") || ft_strequ(dirs->name, "..")))
+		if ((cli_or_recurse == RECURSE && 
+			(ft_strequ(dirs->name, ".") || ft_strequ(dirs->name, ".."))) ||
+			!ls_isdir(dirs))
 		{
 			dirs = dirs->next;
 			continue ;
 		}
-		if (!(dir_content = ls_get_dir_content(ls, dirs)) && ls->errcode)
-			ls_handle_error(ls, NULL, get_error_level(ls->errcode));
-		if (cli_or_recurse == RECURSE && ls_is_dir(ls, dirs->fullpath))
+		content = ls_get_dir_content(ls, dirs);
+		if (cli_or_recurse == RECURSE)
 			ft_printf("\n%s:\n", dirs->fullpath);
-		if (cli_or_recurse == CLI_DIRS && ls->operands > 1)
-			ft_printf("%s:\n");
-		ls_process_dirs(ls, &dir_content);
-		ls_display(ls, dir_content);
-		if (ls->options & OPT_CAPR)
-			ls_dirs(ls, dir_content, RECURSE);
-		ls_free_paths(dir_content);
-		dirs = dirs->next;
+		if (cli_or_recurse == CLI && ls->operands > 1)
+			ft_printf("%s:\n", dirs->fullpath);
+		if (ls->sort_type != NO_SORT)
+			content = ls_sort(content, ls->sort_type, ls->options & OPT_R);
+		ls_display(ls, content, DIRECTORY);
+		if (content && ls->options & OPT_CAPR)
+			ls_dirs(ls, content, RECURSE);
+		ls_free_paths(content);
+		(dirs = dirs->next) && cli_or_recurse == CLI ? ft_printf("\n") : 0;
 	}
 }

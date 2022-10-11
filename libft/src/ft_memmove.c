@@ -1,34 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ls_utils.c                                         :+:      :+:    :+:   */
+/*   ft_memmove.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: akhossan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/08 09:56:30 by akhossan          #+#    #+#             */
-/*   Updated: 2020/11/08 11:34:39 by akhossan         ###   ########.fr       */
+/*   Created: 2019/03/30 14:54:41 by akhossan          #+#    #+#             */
+/*   Updated: 2019/03/31 15:20:46 by akhossan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
-#include <errno.h>
 
-char    *get_full_path(const char *parent, const char *entry)
+void	*ft_memmove(void *dst, const void *src, size_t len)
 {
-    char    *fullpath;
-    char    *tmp;
+	size_t	i;
+	char	*tmp_dst;
+	char	*tmp_src;
 
-    errno = 0;
-	if (parent[ft_strlen(parent) - 1] != '/')
+	tmp_dst = (char *)dst;
+	tmp_src = (char *)src;
+	if (tmp_dst < tmp_src)
 	{
-    	if (!(tmp = ft_strjoin(parent, "/")))
+		i = 0;
+		while (i < len)
 		{
-        	return (NULL);
+			tmp_dst[i] = tmp_src[i];
+			i++;
 		}
-		fullpath = ft_strjoin(tmp, entry);
-		ft_strdel(&tmp);
 	}
 	else
-    	fullpath = ft_strjoin(parent, entry);
-    return (fullpath);
+	{
+		i = 0;
+		while ((int)(--len) >= 0)
+			tmp_dst[i + len] = tmp_src[len];
+	}
+	return (dst);
 }

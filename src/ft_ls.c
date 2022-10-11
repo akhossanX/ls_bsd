@@ -1,6 +1,23 @@
 
 #include "ft_ls.h"
 
+t_sort	get_sort_type(int options)
+{
+	if (options & OPT_T)
+	{
+		if (options & OPT_U)
+			return (ATIME_SORT);
+		if (options & OPT_C)
+			return (CTIME_SORT);
+		return (MTIME_SORT);
+	}
+	if (options & OPT_CAPS)
+		return (SIZE_SORT);
+	if (options & OPT_F)
+		return (NO_SORT);
+	return (ASCII_SORT);
+}
+
 static void	ls_init(t_ls **ls, char **av)
 {
 	*ls = NULL;
@@ -10,20 +27,12 @@ static void	ls_init(t_ls **ls, char **av)
 		perror(av[0]);
 		exit(errno);
 	}
+	(void)ft_bzero(&(*ls)->display, sizeof(t_display));
 	(*ls)->prog = av[0];
-	(*ls)->options = 0;
-	(*ls)->dirs = NULL;
-	(*ls)->files = NULL;
-	(*ls)->all = NULL;
-	(*ls)->dir_count = 0;
 	(*ls)->optend = INT_MAX;
-	(*ls)->errcode = 0;
-	(*ls)->operands = 0;
 }
 
-/*
-**	For debugging
-*/
+/*********************************  For debugging *********************************************/
 
 void	print_paths(t_path *lst)
 {
@@ -32,24 +41,22 @@ void	print_paths(t_path *lst)
 	p = lst;
 	while (p)
 	{
-		ft_printf("%s\n", p->name);
+		ft_printf("%s\n", p->fullpath);
 		p = p->next;
 	}
 }
-/*
-static void	print_all(t_ls *ls)
-{
-	if (ls->options & OPT_D)
-	{
-		print_paths(ls->all);
-		return ;
-	}	
+
+void	print_all(t_ls *ls)
+{	
 	ft_printf("{red}DIRS:\n");
 	print_paths(ls->dirs);
-	ft_printf("{blue}FILES:{eoc}\n");
+	ft_printf("{blue}FILES:\n");
 	print_paths(ls->files);
+	ft_printf("{eoc}");
 }
-*/
+
+/************************************************************************************************/
+
 
 int		main(int ac, char **av)
 {
@@ -60,11 +67,12 @@ int		main(int ac, char **av)
 	ls_init(&ls, av);
 	parse_cli_arguments(ls, av + 1);
 	ls->sort_type = get_sort_type(ls->options);
-	ls_process_files(ls);
-	ls_process_dirs(ls, &ls->dirs);
-	ls_dirs(ls, ls->dirs, CLI_DIRS);
-	//print_all(ls);
-	errcode = ls->errcode != 0 ? get_error_level(ls->errcode) : 0;
+	if (ls->sort_type != NO_SORT)
+		ls->all = ls_sort(ls->all, ASCII_SORT, ls->options & OPT_R);
+	process_arguments(ls);
+	ls_cli_files(ls);
+	ls_dirs(ls, ls->dirs, CLI);
+	errcode = ls->ret;
 	ls_clean_all(ls);
 	return (errcode);
 }

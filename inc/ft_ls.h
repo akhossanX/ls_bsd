@@ -18,18 +18,29 @@
 # include <dirent.h>
 # include <sys/stat.h>
 # include <sys/types.h>
+# include <sys/xattr.h>
+# include <sys/acl.h>
+# include <sys/ioctl.h>
 # include <errno.h>
 # include <limits.h>
 # include <time.h>
 # include <grp.h>
 # include <pwd.h>
 # include <assert.h>
+# include <fcntl.h>
 
-# define NOPTIONS		15
+
+# define NOPTIONS		16
 
 # define LS_SUCCESS		0
 # define LS_MINOR_ERROR	1
 # define LS_MAJOR_ERROR	2
+# define CLI			0
+# define RECURSE		1
+# define NOPARENT		NULL
+# define FILES			0
+# define DIRECTORY		1
+# define SIX_MONTHS		15778800
 
 /*
 **	Mandatory Options
@@ -59,9 +70,9 @@
 
 # define OPT_CAPC	(1 << 13)	/* Use block display format */
 # define OPT_CAPS	(1 << 14)	/* Sort by file size, largest first */
+# define OPT_ATTR	(1 << 15)	/* Display extended attributes with (-l) if any */
 
-# define CLI_DIRS	0
-# define RECURSE	1
+
 
 /*
 **	Data structures
@@ -80,7 +91,7 @@ typedef enum	e_sort
 typedef struct		s_option
 {
 	char	option;
-	short	code;
+	int		code;
 }					t_option;
 
 extern const t_option	g_options[];
@@ -90,19 +101,45 @@ typedef struct		s_path
 	char			*name;
 	char			*fullpath;
 	struct stat		*st;
+	struct passwd	*usrinfo;
+	char			*usrname;
+	struct group	*grpinfo;
+	char			*grpname;
+	int32_t			major;
+	int32_t			minor;
+	char			*xattr;
+	ssize_t			xattrsz;
 	struct s_path	*next;
 }					t_path;
 
-typedef int	(*t_cmp)(t_path *a, t_path *b, int flg);
+typedef int64_t	(*t_cmp)(t_path *a, t_path *b, t_sort sort_type);
+
+typedef struct		s_display
+{
+	int				lnk_length;
+	int				owner_length;
+	int				grp_length;
+	int				max_files_names;
+	int				max_dirs_names;
+	int				wincolumns;
+	int				total_files;
+	int				total_dirs;
+	int				blocks;
+	int				size_length;
+	int				has_cbdev;
+	time_t			time;
+}					t_display;
 
 typedef struct		s_ls
 {
 	int16_t			options;
-	int				dir_count;//command line directories counter
-	int				errcode;
+	int				err;
+	int				ret; // the code to be returned on program exit
 	int				operands;
 	int				optend;
 	t_sort			sort_type;
+	t_display		display;
+	int				fd; // To Remove later on
 	struct dirent	*de;
 	DIR				*dp;
 	const char		*prog;
@@ -115,33 +152,40 @@ void	parse_cli_arguments(t_ls *ls, char **av);
 void	get_cli_options(t_ls *ls, char **av);
 void	get_cli_operand(t_ls *ls, const char *arg);
 void	ls_usage(t_ls *ls, const char option);
-void	ls_save_path
-		(t_ls *ls, t_path **lst, const char *parent, const char *name);
+t_path	*ls_save_path(
+		t_ls *ls, t_path **lst, const char *parent, const char *name);
 void	ls_handle_error(t_ls *ls, const char *arg, int error_level);
 int		get_error_level(int error);
 void	ls_clean_all(t_ls *ls);
-void	ls_process_files(t_ls *ls);
-void	set_stat(t_ls *ls, t_path *target_list);
+int		set_stat(t_ls *ls, t_path *target_list);
 
-void	ls_sort(t_ls *ls, t_path **target);
-void	ls_display(t_ls *ls, t_path *list);
+t_path	*ls_sort(t_path *target, t_sort sort_type, int order);
+void	ls_display(t_ls *ls, t_path *list, int dir_or_files);
+void	set_block_data(t_ls *ls, t_path *entry, int *max, int *total_entries);
+void    block_display(t_ls *ls, t_path *lst, int dir_or_files);
 
-void	ls_process_dirs(t_ls *ls, t_path **target);
+
+void	process_arguments(t_ls *ls);
+
 void	ls_dirs(t_ls *ls, t_path *dirs, int cli_or_recurse);
+void	ls_cli_files(t_ls *ls);
 
 t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name);
-void	ls_path_add(t_path **target, t_path *path);
+void	ls_path_append(t_path **lst, t_path *path);
 
 void	ls_free_paths(t_path *lst);
 void	ls_closedir(DIR **dirp);
 int		ls_is_dir(t_ls *ls, const char *entry);
 
-DIR		*ls_opendir(t_ls *ls, const char *dir);
-
 t_sort	get_sort_type(int option);
 
-
 char	*get_full_path(const char *parent, const char *entry);
+
+
+void	print_all(t_ls *ls);
+void	print_paths(t_path *lst);
+
+
 
 
 #endif

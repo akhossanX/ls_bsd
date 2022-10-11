@@ -18,12 +18,12 @@ t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 
 	errno = 0;
 	if (!(node = (t_path *)ft_memalloc(sizeof(t_path))) && 
-			(ls->errcode = errno))
-		return (NULL);
-	if (!(node->name = ft_strdup(name)) && (ls->errcode = errno))
+			(ls->err = errno))
+		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
+	if (!(node->name = ft_strdup(name)) && (ls->err = errno))
 	{
 		free(node);
-		return (NULL);
+		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
 	}
 	if (!parent)
  		node->fullpath = ft_strdup(name);
@@ -31,31 +31,37 @@ t_path	*ls_path_new(t_ls *ls, const char *parent, const char *name)
 		node->fullpath = get_full_path(parent, name);
 	if (errno)
 	{
-		ls->errcode = errno;
+		ls->err = errno;
 		ft_strdel(&node->name);
 		ft_strdel(&node->fullpath);
 		free(node);
-		node = NULL;
+		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
 	}
 	return (node);
 }
 
-void	ls_save_path(t_ls *ls, t_path **target_list, const char *parent, 
-		const char *name)
+void	ls_path_append(t_path **lst, t_path *new)
 {
-	t_path	*new;
 	t_path	*ptr;
 
-	new = ls_path_new(ls, parent, name);	
-	if (new == NULL && ls->errcode == ENOMEM)
-		ls_handle_error(ls, NULL, LS_MAJOR_ERROR);
-	if (*target_list == NULL)
+	new->next = NULL;
+	if (*lst == NULL)
 	{
-		*target_list = new;
+		*lst = new;
 		return ;
 	}
-	ptr = *target_list;
+	ptr = *lst;
 	while (ptr->next)
 		ptr = ptr->next;
 	ptr->next = new;
+}
+
+t_path	*ls_save_path(t_ls *ls, t_path **target_list, const char *parent, 
+		const char *name)
+{
+	t_path	*new;
+
+	new = ls_path_new(ls, parent, name);
+	ls_path_append(target_list, new);
+	return (new);
 }

@@ -52,6 +52,8 @@ void			*ft_memcpy(void *dst, const void *src, size_t n);
 void			ft_bzero(void *s, size_t n);
 void			*ft_memalloc(size_t size);
 void			ft_memdel(void **ap);
+void			*ft_memdup(const void *mem, size_t size);
+void			*ft_memmove(void *dest, const void *src, size_t size);
 
 /*
 **	Strings
@@ -124,6 +126,8 @@ long			ft_abs(long nb);
 double			ft_sqrt(int n);
 int				ft_pow(int x, unsigned int y);
 int				ft_round(double n);
+int				nb_length(long long n);
+int     		ft_ceil(double nb);
 
 /*
 **	Generic Linked List

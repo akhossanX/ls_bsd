@@ -31,3 +31,84 @@ Recursive listing:
 
 	+ Once we found a directory we display it name followed by ':' then its content;
 	+ 
+
+Phase 1: Stocking all cli arguments and sorting them in ASCII order unless -f is specified
+
+
+Phase 2: Verifying arguments existence
+
+    + stat all entries
+        if an error occured report it and deallocate the entry
+        else check the type of the entry
+            if it is a file add it to ls->files
+            else add it to ls->dirs
+
+Phase 3: Sort files and directories lists independantly
+
+    3.1 Process files first:
+        + lookup ls->all and ls->files for list of files
+        + check sort type:
+            if ASCII sort: do not sort (because they are already sorted)
+            else sort according to the given sort flag (-t{-u, -c}, -s)
+        + Display files according to format flags (-l[-u, -c], -C, -1)
+
+    3.2 Process dirs:
+        + for each directory in ls->dirs:
+            if it's a direcotry (since recursive call returns a mixed list):
+                + open the directory and  get its content
+                + sort the list of content if sort is specified
+                + display the content according to format flag (-l[-u, -c], -C, -1)
+                if the recursive flag is active:
+                    + call ls_dirs with content as parameter
+            else do nothing
+
+Phase 4: Handle all display formats 
+
+    + long format (-l):
+        if the entries list belongs to a directory listing:
+            display total blocks in one single line
+        for each entry in list:
+            display the file type
+            display permissions        (sticky bit and ACL still not handled )
+            display owner and group name almost done (Nb: if no owner or group just display the id as it is).
+            display size in bytes (minor, major for character and block special files)
+            display date (Thu Nov 24 18:22:48 1986\n\0)
+
+
+
+Remaining tasks:
+
+        if no owner/group display uid/gid     done
+
+        -a and -A flags not handled yet       done
+        -g                                    done
+
+
+
+        ACL attributes                       done
+
+
+
+        Block format display        
+
+            + Determine the maximum number of records we can display in one line (maxrecords)
+
+
+            + Determine the effective number cols and rows in which we can display  
+            
+                if number of entries is less than, or equal to maxrecords   (entries <= maxrecords) :
+                    Display all in one line
+                else :
+                    initialize cols,rows = 1
+                    as long as cols * rows < entries and cols < maxrecords:
+                        increment rows by 1 (rows++)
+                        cols = ceil (entries / rows)
+                        while cols > maxrecords:
+                            rows ++
+                            cols = ceil (entries / rows)
+
+
+        Colour flag (-G)
+            
+
+
